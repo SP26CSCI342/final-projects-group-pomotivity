@@ -1,0 +1,392 @@
+.dashboard {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ── Center canvas ─────────────────────────────────────── */
+
+.center {
+  flex: 1 1 0;
+  min-width: 0;
+  border-right: 1px solid var(--color-border-strong);
+  padding: 64px 43px 64px 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.date {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-muted);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 52.8px;
+  color: var(--color-text);
+}
+
+.article {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: 49px 25px;
+  max-width: 768px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 23.99px;
+}
+
+.articleHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid var(--color-border-strong);
+  width: 100%;
+}
+
+.articleHeaderIcon {
+  width: 19px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.articleHeaderTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 28.8px;
+  color: var(--color-text);
+}
+
+.articleBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.articleParagraph {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--color-text-muted);
+}
+
+.focusButtonWrap {
+  padding-top: 15.99px;
+}
+
+.focusButton {
+  background-color: var(--color-accent-green);
+  color: var(--color-text-button);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 32px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0px 10px 15px -3px rgba(33, 119, 49, 0.2),
+    0px 4px 6px -4px rgba(33, 119, 49, 0.2);
+  transition: filter 0.15s;
+}
+
+.focusButton:hover {
+  filter: brightness(1.08);
+}
+
+.focusButtonIcon {
+  width: 11px;
+  height: 14px;
+  display: block;
+}
+
+/* ── Right widgets ─────────────────────────────────────── */
+
+.widgets {
+  width: 384px;
+  flex-shrink: 0;
+  background-color: var(--color-bg-aside);
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  overflow: hidden;
+}
+
+/* Calendar widget */
+
+.calWidget {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.calHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.calMonth {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text);
+}
+
+.calNav {
+  display: flex;
+  align-items: center;
+  gap: 7.99px;
+}
+
+.calNavButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.317px;
+  height: 7px;
+}
+
+.calChevron {
+  width: 4.317px;
+  height: 7px;
+  display: block;
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+}
+
+.calDow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.calDay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text);
+  text-align: center;
+  height: 32.8px;
+}
+
+.calDayMuted {
+  opacity: 0.5;
+}
+
+.calDayActive {
+  background-color: var(--color-accent-green);
+  color: var(--color-text-button);
+}
+
+.calDayMarker img {
+  width: 12.866px;
+  height: 9.52px;
+  display: block;
+}
+
+/* Approaching Timelines */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--color-text);
+}
+
+.dotsIcon {
+  width: 9.333px;
+  height: 2.333px;
+  display: block;
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.timelineCard {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.timelineLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timelinePlay {
+  background-color: var(--color-surface-input);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.timelinePlayIcon {
+  width: 6.417px;
+  height: 8.167px;
+  display: block;
+}
+
+.timelineMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.timelineTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text);
+}
+
+.timelineSubtitle {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-muted);
+}
+
+.timelineInfo {
+  width: 11.667px;
+  height: 11.667px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Tasks progress */
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.taskRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.taskHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.taskName {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text);
+}
+
+.taskPercent {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-muted);
+}
+
+.progressTrack {
+  background-color: var(--color-surface-input);
+  height: 6px;
+  border-radius: var(--radius-pill);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 6px;
+  background-color: var(--color-accent-green);
+  border-radius: var(--radius-pill);
+}
