@@ -1,0 +1,301 @@
+.timer {
+  flex: 1 1 0;
+  min-width: 0;
+  border-right: 1px solid var(--color-border-strong);
+  padding: 64px 43px 64px 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 7.5px;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 52.8px;
+  color: var(--color-text);
+}
+
+.subheading {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-muted);
+}
+
+.body {
+  padding: 0 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.timerStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 672px;
+  width: 100%;
+  padding: 24px 0;
+}
+
+/* ── Progress arc ──────────────────────────────────────── */
+
+.arcWrap {
+  position: relative;
+  width: 480px;
+  height: 240px;
+  padding-top: 24px;
+}
+
+.arcSvg {
+  width: 480px;
+  height: 240px;
+  display: block;
+  overflow: visible;
+}
+
+.arcCenter {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.arcTime {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 84px;
+  line-height: 84px;
+  letter-spacing: -2.1px;
+  color: var(--color-text);
+}
+
+.arcPill {
+  margin-top: 16px;
+  background-color: rgba(33, 119, 49, 0.1);
+  padding: 5.5px 24px 5.89px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-accent-green);
+}
+
+/* ── Controls ──────────────────────────────────────────── */
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  padding-top: 64px;
+}
+
+.ctrl {
+  background-color: #342726;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.15s;
+}
+
+.ctrl:hover {
+  filter: brightness(1.15);
+}
+
+.ctrlIcon {
+  width: 24px;
+  height: 28px;
+  display: block;
+}
+
+.ctrlPlay {
+  background-color: var(--color-accent-green);
+  width: 96px;
+  height: 96px;
+  box-shadow: 0px 20px 25px -5px rgba(33, 119, 49, 0.3),
+    0px 8px 10px -6px rgba(33, 119, 49, 0.3);
+}
+
+/* ── Cadence selector ─────────────────────────────────── */
+
+.cadence {
+  margin-top: 32px;
+  background-color: var(--color-surface);
+  border: 1px solid rgba(64, 73, 62, 0.3);
+  border-radius: var(--radius-pill);
+  padding: 17px 33px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.cadenceLabel {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text-muted);
+}
+
+.cadenceSelectWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cadenceSelect {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid #40493e;
+  border-radius: 6px;
+  padding: 7px 33px 7px 13px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.cadenceSelect:focus {
+  outline: none;
+  border-color: var(--color-accent-green);
+}
+
+.cadenceChevron {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 21px;
+  height: 21px;
+  pointer-events: none;
+  display: block;
+}
+
+/* ── Task Goals ───────────────────────────────────────── */
+
+.goals {
+  margin-top: 24px;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid rgba(64, 73, 62, 0.3);
+  border-radius: 16px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.goalsHeader {
+  border-bottom: 1px solid rgba(64, 73, 62, 0.5);
+  padding-bottom: 9px;
+  width: 100%;
+}
+
+.goalsTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 30px;
+  color: var(--color-text);
+}
+
+.goalList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+  width: 100%;
+}
+
+.goalItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-bg);
+  border: 2px solid #899486;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.checkbox:hover {
+  border-color: var(--color-accent-green);
+}
+
+.checkboxIcon {
+  width: 10.867px;
+  height: 8.017px;
+  display: block;
+}
+
+.goalLabel {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text);
+}
+
+.goalLabelDone {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.addGoal {
+  width: 100%;
+  border: 1px dashed #899486;
+  border-radius: var(--radius-card);
+  padding: 11px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text-muted);
+  background-color: transparent;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.addGoal:hover {
+  border-color: var(--color-accent-green);
+  color: var(--color-text);
+}
+
+.addGoalIcon {
+  width: 10.5px;
+  height: 10.5px;
+  display: block;
+}
