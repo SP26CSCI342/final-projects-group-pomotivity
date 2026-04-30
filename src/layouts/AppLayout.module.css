@@ -1,0 +1,11 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  padding-left: 288px;
+}
+
+.main {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
