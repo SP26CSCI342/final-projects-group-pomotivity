@@ -1,0 +1,168 @@
+.screen {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 202.22px 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 42px;
+  width: 448px;
+  max-width: 100%;
+  padding: 64px 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  font-family: var(--font-logo);
+  font-weight: 700;
+  font-size: 89px;
+  line-height: 60px;
+  letter-spacing: -1.78px;
+  color: var(--color-text-strong);
+  white-space: nowrap;
+}
+
+.logoP,
+.logoMotivity {
+  display: inline-block;
+}
+
+.logoIcon {
+  width: 130px;
+  height: 116px;
+  display: block;
+}
+
+.card {
+  width: 100%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 25px 25px 41px 25px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text);
+}
+
+.inputWrap {
+  position: relative;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.inputIconKey {
+  width: 23px;
+  height: 12px;
+}
+
+.input {
+  width: 100%;
+  background-color: var(--color-surface-input);
+  border-radius: var(--radius-input);
+  padding: 16px 16px 16.8px 64px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.input:focus {
+  border-color: var(--color-accent-green);
+}
+
+.linksMargin {
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+  width: 100%;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+}
+
+.linkForgot {
+  color: var(--color-text-link-red);
+  text-decoration: underline;
+}
+
+.linkSignup {
+  color: var(--color-text);
+}
+
+.submitMargin {
+  padding-top: 16px;
+  width: 100%;
+}
+
+.submit {
+  width: 100%;
+  background-color: var(--color-accent-green);
+  color: var(--color-text-button);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  padding: 16px 0;
+  border-radius: var(--radius-pill);
+  text-align: center;
+  transition: filter 0.15s;
+}
+
+.submit:hover {
+  filter: brightness(1.08);
+}
