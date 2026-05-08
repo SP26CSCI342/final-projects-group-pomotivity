@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logoTomato from '../assets/logo-tomato.svg';
 import iconUser from '../assets/icon-user.svg';
 import iconEmail from '../assets/icon-email-alt.svg';
@@ -7,6 +7,13 @@ import iconConfirm from '../assets/icon-confirm.svg';
 import styles from './signup.module.css';
 
 export default function SignUp() {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate('/');
+  };
+
   return (
     <div className={styles.screen}>
       <div className={styles.container}>
@@ -17,7 +24,7 @@ export default function SignUp() {
         </div>
 
         <div className={styles.card}>
-          <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+          <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.row}>
               <div className={styles.field}>
                 <label htmlFor="signup-first" className={styles.label}>First Name</label>

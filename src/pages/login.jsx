@@ -1,10 +1,17 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logoTomato from '../assets/logo-tomato.svg';
 import iconEmail from '../assets/icon-email.svg';
 import iconKey from '../assets/icon-key.svg';
 import styles from './login.module.css';
 
 export default function Login() {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate('/');
+  };
+
   return (
     <div className={styles.screen}>
       <div className={styles.main}>
@@ -15,7 +22,7 @@ export default function Login() {
         </div>
 
         <div className={styles.card}>
-          <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+          <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.field}>
               <label htmlFor="login-email" className={styles.label}>Login</label>
               <div className={styles.inputWrap}>
