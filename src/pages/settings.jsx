@@ -1,13 +1,5 @@
-import React from "react";
+import WorkInProgress from '../components/WorkInProgress';
 
-const Settings = () => {
-    return (
-        <div>
-            <h1>
-                I am settings page.
-            </h1>
-        </div>
-    );
-};
-
-export default Settings;
+export default function Settings() {
+  return <WorkInProgress pageName="Settings" />;
+}

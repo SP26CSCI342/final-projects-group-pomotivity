@@ -1,13 +1,5 @@
-import React from "react";
+import WorkInProgress from '../components/WorkInProgress';
 
-const NoteEditor = () => {
-    return (
-        <div>
-            <h1>
-                I am note editor page.
-            </h1>
-        </div>
-    );
-};
-
-export default NoteEditor;
+export default function NoteEditor() {
+  return <WorkInProgress pageName="Note Editor" />;
+}

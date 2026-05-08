@@ -1,0 +1,440 @@
+.task {
+  flex: 1 1 0;
+  min-width: 0;
+  border-right: 1px solid var(--color-border-strong);
+  padding: 64px 43px 64px 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+}
+
+.headerMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 7.5px;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 48px;
+  line-height: 52.8px;
+  color: var(--color-text);
+}
+
+.subhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subheadIcon {
+  width: 11.667px;
+  height: 11.667px;
+  display: block;
+}
+
+.subheadText {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-muted);
+}
+
+.progressCard {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progressLabel {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.progressTrack {
+  width: 128px;
+  height: 8px;
+  background-color: var(--color-surface-input);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #84da87;
+  border-radius: var(--radius-pill);
+}
+
+.progressPercent {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 28.8px;
+  color: #84da87;
+}
+
+/* ── Bento grid ───────────────────────────────────────── */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 32px;
+  width: 100%;
+}
+
+.bentoLeft {
+  grid-column: 1 / span 8;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.bentoRight {
+  grid-column: 9 / span 4;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.card {
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: 33px;
+  display: flex;
+  flex-direction: column;
+  gap: 23.4px;
+}
+
+.cardHeader {
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 28.8px;
+  color: var(--color-text);
+}
+
+.cardIcon {
+  width: 22px;
+  height: 16px;
+  display: block;
+}
+
+/* Reading practice */
+
+.japaneseText {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 29.25px;
+  color: var(--color-text-muted);
+}
+
+.translationText {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #899486;
+}
+
+/* Vocabulary table */
+
+.vocabCard {
+  gap: 24px;
+}
+
+.vocabHeader {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.vocabTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vocabTh {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border-strong);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text-muted);
+}
+
+.vocabTd {
+  padding: 16.5px 16px;
+  border-bottom: 1px solid var(--color-border-strong);
+  vertical-align: middle;
+}
+
+.vocabJa {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--color-text);
+}
+
+.vocabReading,
+.vocabMeaning {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text-muted);
+  padding-top: 21.6px;
+  padding-bottom: 22.4px;
+}
+
+/* Session controls */
+
+.sessionCard {
+  background-color: #342726;
+  border: 1px solid rgba(132, 218, 135, 0.2);
+  border-radius: var(--radius-card);
+  padding: 33px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sessionGlow {
+  position: absolute;
+  top: -48px;
+  right: -47.67px;
+  width: 128px;
+  height: 128px;
+  background-color: rgba(132, 218, 135, 0.1);
+  border-radius: var(--radius-pill);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.sessionTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 28.8px;
+  color: var(--color-text);
+  position: relative;
+  z-index: 1;
+}
+
+.sessionDesc {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-muted);
+  position: relative;
+  z-index: 1;
+}
+
+.sessionTimer {
+  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.sessionTime {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 48px;
+  letter-spacing: 2.4px;
+  color: #84da87;
+}
+
+.sessionButton {
+  background-color: #84da87;
+  color: #00390f;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  padding: 16px 0;
+  border-radius: var(--radius-pill);
+  text-align: center;
+  filter: drop-shadow(0px 0px 7.5px rgba(132, 218, 135, 0.2));
+  transition: filter 0.15s;
+  position: relative;
+  z-index: 1;
+}
+
+.sessionButton:hover {
+  filter: brightness(1.08) drop-shadow(0px 0px 7.5px rgba(132, 218, 135, 0.2));
+}
+
+/* Chart */
+
+.chartCard {
+  padding: 25px;
+  gap: 8px;
+}
+
+.chartTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text);
+}
+
+.chartArea {
+  height: 136px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 8px;
+  width: 100%;
+}
+
+.chartBar {
+  flex: 1 1 0;
+  min-width: 0;
+  background-color: var(--color-surface-input);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+.chartBarActive {
+  background-color: rgba(132, 218, 135, 0.8);
+}
+
+.chartLegend {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: #899486;
+}
+
+.chartLegendActive {
+  color: #84da87;
+}
+
+/* Checklist */
+
+.checklistCard {
+  padding: 25px;
+  gap: 15.9px;
+}
+
+.checklistTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checklistTitleIcon {
+  width: 11.667px;
+  height: 8.794px;
+  display: block;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkBox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #899486;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.checkBox:hover {
+  border-color: var(--color-accent-emerald);
+}
+
+.checkBoxDone {
+  width: 18px;
+  height: 18px;
+  background-color: #84da87;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin-left: -1px;
+}
+
+.checkIcon {
+  width: 10px;
+  height: 8px;
+  display: block;
+}
+
+.checkLabel {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text);
+}
+
+.checkLabelDone {
+  color: #899486;
+  text-decoration: line-through;
+}

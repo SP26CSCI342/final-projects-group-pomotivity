@@ -1,13 +1,5 @@
-import React from "react";
+import WorkInProgress from '../components/WorkInProgress';
 
-const TaskDetails = () => {
-    return (
-        <div>
-            <h1>
-                I am task details page.
-            </h1>
-        </div>
-    );
-};
-
-export default TaskDetails;
+export default function TaskDetails() {
+  return <WorkInProgress pageName="Task Details" />;
+}
