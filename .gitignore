@@ -167,3 +167,4 @@ out/
 
 # Local Node.js symlink
 .node
+/.claude/settings.local.json
