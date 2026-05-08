@@ -1,37 +1,43 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import logoTomato from '../assets/logo-tomato.svg';
-import iconDashboard from '../assets/icon-nav-dashboard.svg';
-import iconCalendar from '../assets/icon-nav-calendar.svg';
-import iconTimelines from '../assets/icon-nav-timelines.svg';
-import iconTasks from '../assets/icon-nav-tasks.svg';
-import iconPlus from '../assets/icon-plus.svg';
-import iconSettings from '../assets/icon-settings.svg';
-import iconSignout from '../assets/icon-signout.svg';
+import iconDashboard from '../assets/nav-dashboard.svg';
+import iconCalendar from '../assets/nav-calendar.svg';
+import iconTimer from '../assets/nav-timer.svg';
+import iconTasks from '../assets/nav-tasks.svg';
+import iconNotes from '../assets/nav-notes.svg';
+import iconProfile from '../assets/nav-profile.svg';
+import iconPlus from '../assets/nav-plus.svg';
+import iconSettings from '../assets/nav-settings.svg';
+import iconSignout from '../assets/nav-signout.svg';
 import styles from './Sidebar.module.css';
 
 const mainNav = [
-  { to: '/', label: 'Dashboard', end: true, icon: iconDashboard, iconClass: 'navIconDashboard' },
-  { to: '/calendar', label: 'Calendar', icon: iconCalendar, iconClass: 'navIconCalendar' },
-  { to: '/timer', label: 'Timelines', icon: iconTimelines, iconClass: 'navIconTimelines' },
-  { to: '/notes', label: 'Tasks', icon: iconTasks, iconClass: 'navIconTasks' },
+  { to: '/', label: 'Dashboard', end: true, icon: iconDashboard },
+  { to: '/calendar', label: 'Calendar', icon: iconCalendar },
+  { to: '/timer', label: 'Timer', icon: iconTimer },
+  { to: '/task/1', label: 'Tasks', icon: iconTasks, matchPrefix: '/task' },
+  { to: '/notes', label: 'Notes', icon: iconNotes, matchPrefix: '/note' },
+  { to: '/profile', label: 'Profile', icon: iconProfile },
 ];
 
 const footerNav = [
-  { to: '/settings', label: 'Settings', icon: iconSettings, iconClass: 'navIconSettings' },
-  { to: '/login', label: 'Sign Out', icon: iconSignout, iconClass: 'navIconSignout' },
+  { to: '/settings', label: 'Settings', icon: iconSettings },
+  { to: '/login', label: 'Sign Out', icon: iconSignout },
 ];
 
-function NavItem({ to, end, label, icon, iconClass }) {
+function NavItem({ to, end, label, icon, matchPrefix }) {
+  const location = useLocation();
+  const matchedByPrefix = matchPrefix && location.pathname.startsWith(matchPrefix);
+
+  const className = ({ isActive }) => {
+    const active = matchedByPrefix || isActive;
+    return active ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink;
+  };
+
   return (
     <li>
-      <NavLink
-        to={to}
-        end={end}
-        className={({ isActive }) =>
-          isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-        }
-      >
-        <img src={icon} alt="" className={`${styles.navIcon} ${styles[iconClass]}`} />
+      <NavLink to={to} end={end} className={className}>
+        <img src={icon} alt="" className={styles.navIcon} />
         <span>{label}</span>
       </NavLink>
     </li>
@@ -57,7 +63,7 @@ export default function Sidebar() {
 
       <button type="button" className={styles.cta}>
         <img src={iconPlus} alt="" className={styles.ctaIcon} />
-        <span>New Entry</span>
+        <span>New Note</span>
       </button>
 
       <ul className={styles.footer}>
