@@ -1,9 +1,11 @@
 // Load environment variables
 require("dotenv").config();
 
-
-const express = require("express");
-const cors = require("cors");
+const express  = require("express");
+const cors     = require("cors");
+const mongoose = require("mongoose");
+const bcrypt   = require("bcryptjs");
+const jwt      = require("jsonwebtoken");
 
 // Initialize app
 const app = express();
@@ -17,85 +19,98 @@ const PORT = process.env.PORT || 3000;
 const users = [];
 
 
-app.use(cors({
-  origin: "http://localhost:5173/", // frontend origin
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json()); // parse JSON bodies
+// parse URL-encoded bodies (e.g., form submissions)
+app.use(express.urlencoded({ extended: true }));
+
+// Connect Mongoose to MongoDB Atlas.
+// Uses `process.env.MONGO_URI` from your .env file.
+mongoose.connect(process.env.MONGO_URI, {})
+  .then(() => console.log("MongoDB connected."))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+const userSchema = new mongoose.Schema({
+  firstName: { type: String, required: true, unique: true, trim: true, minlength: 3 },
+  lastName: { type: String, required: true, unique: true, trim: true, minlength: 3 },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true, minlength: 8 },
+  createdAt: { type: Date, default: Date.now },
+});
+
+const User = mongoose.model("User", userSchema);
 
 
-// input validation imported from assignment 6
-// TODO: improve input validation
 function validateInputs({ firstName, lastName, email, password}){
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     if(!firstName || firstName.length < 3){
-        return new Error("Username must be at least 3 characters long");
+        return new Error("first name must be at least 3 characters long");
     }
 
     if(!lastName || lastName.length < 3){
         return new Error("Username must be at least 3 characters long");
     }
 
-    if(!email || !emailRegex.test(email)){
-        return new Error("email must be in the form of example@example.example")
+    if (email !== undefined) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        return new Error("Please enter a valid email address.");
+      }
     }
-    
     if(!password || password.length < 8){
         return new Error("Password must be at least 8 characters long")
     }
+  return "";
 }
 
-app.post("/api/register", (req, res) => {
-  const {firstName, lastName, email, password } = req.body;
+// ============================================================
+// POST /api/register
+// ============================================================
+app.post("/api/register", async(req, res) => {
+  const {firstName, lastName, email, password } = req.body || {};
 
   const validationError = validateInputs({ firstName, lastName, email, password });
   if (validationError) {
     return res.status(400).json({ error: validationError });
   }
   
-  const duplicateUser = users.find(user => user.email === email);
+  try{
+    const existingUser = await User.findOne({email});
+    if (existingUser) {
+      return res.status(409).json({ error: "email already taken"});
+    }
 
-  if(duplicateUser){
-    return res.status(409).json({error : "email already exists"})
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({ firstName, lastName, email, password : hashedPassword })
+
+  }catch(error){
+    console.error("Register error:", error);
+    if(error.code === 11000) {
+      return res.status(409).json({error: "email already taken"})
+    }
+    return res.status(500).json({ error: "Server error." });
   }
-
-  const newUser = {
-    firstName,
-    lastName,
-    email,
-    password,
-  };
-  users.push(newUser);
-
-  return res.status(201).json({
-    message: "User registered successfully.",
-    user: {
-      firstName : newUser.firstName,
-      lastName : newUser.lastName,
-      email: newUser.email,
-    },
-  });
 });
 
-// handles login requests
-// password is not encrypted
+// ============================================================
+// POST /api/login
+// ============================================================
 app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body || {};
 
   // Basic validation
   if (!email || !password) {
-    return res.status(400).json({
-      message: "Email and password are required"
-    });
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
   try {
-    const user = users.find(user => user.email === email);
-    if(!email || user.password !== password){
-        return res.status(401).json({error: "Invalid email or password"})
+    const user = await User.findOne({ email });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     return res.status(200).json({
         success: true,
@@ -104,32 +119,40 @@ app.post("/api/login", async (req, res) => {
             firstName : user.firstName,
             lastName : user.lastName,
             email : email
-        }
+        },
+        token,
     });
-    
-
-    return res.status(401).json({
-      success: false,
-      message: "Invalid credentials"
-    });
-
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
-      message: "Server error"
-    });
+    res.status(500).json({ message: "Server error." });
   }
 });
 
+// ============================================================
+// POST /api/logout
+// ============================================================
+app.post("/api/logout", (req, res) => {
+    
+    req.headers.authorization = req.headers.authorization || "";
+    if (!req.headers.authorization.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Missing or invalid token." });
+    }
+    
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({ error: "Invalid token." });
+    }
 
-// 404 fallback â€” must come AFTER all routes so they match first.
-app.use((req, res) => {
-  return res.status(404).json({
-    error: "Route not found.",
-  });
+  return res.status(200).json({ message: "Logged out." });
 });
 
-// checks if server is running
+// 404 fallback — must come AFTER every route or it'll eat them.
+app.use((req, res) => {
+  return res.status(404).json({ error: "Route not found." });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server running on port http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
