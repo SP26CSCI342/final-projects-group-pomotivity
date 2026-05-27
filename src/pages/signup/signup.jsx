@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import logoTomato from '../assets/logo-tomato.svg';
-import iconUser from '../assets/icon-user.svg';
-import iconEmail from '../assets/icon-email-alt.svg';
-import iconLock from '../assets/icon-lock.svg';
-import iconConfirm from '../assets/icon-confirm.svg';
+import logoTomato from '../../assets/logo-tomato.svg';
+import iconUser from '../../assets/icon-user.svg';
+import iconEmail from '../../assets/icon-email-alt.svg';
+import iconLock from '../../assets/icon-lock.svg';
+import iconConfirm from '../../assets/icon-confirm.svg';
 import styles from './signup.module.css';
 
 export default function SignUp() {

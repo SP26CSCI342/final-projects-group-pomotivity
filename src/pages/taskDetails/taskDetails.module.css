@@ -438,3 +438,247 @@
   color: #899486;
   text-decoration: line-through;
 }
+
+/* ── Task Manager / All Tasks View ────────────────────── */
+
+.tasksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.tasksHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: 1.5rem;
+}
+
+.tasksTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.tasksAvatarBtn {
+  background: var(--color-surface-input);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.bentogrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+/* Small cards - 1 column x 1 row */
+.gridItemSmall {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+/* Medium cards - 2 columns x 2 rows */
+.gridItemMedium {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+/* ── Task Card Styles ────────────────────── */
+
+.smallCard {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 172px;
+}
+
+.largeCard {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-card);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.headerLarge {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.iconBtn img {
+  width: 24px;
+  height: 24px;
+}
+
+.progressSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background: var(--color-surface-input);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: #84da87;
+  transition: width 0.3s ease;
+}
+
+.percentage {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+  min-width: 40px;
+  text-align: right;
+}
+
+.timeSpent {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.timeSpentLarge {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.statsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tasksHeading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.taskName {
+  font-size: 0.875rem;
+  color: var(--color-text);
+  min-width: 60px;
+}
+
+.taskProgressBar {
+  flex: 1;
+  height: 6px;
+  background: var(--color-surface-input);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.taskProgressFill {
+  height: 100%;
+  background: #84da87;
+  transition: width 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 1440px) {
+  .bentogrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .gridItemMedium {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1024px) {
+  .bentogrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gridItemMedium {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .bentogrid {
+    grid-template-columns: 1fr;
+  }
+
+  .gridItemSmall,
+  .gridItemMedium {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}

@@ -1,8 +1,8 @@
-import iconChevronLeft from '../assets/icon-chevron-left-lg.svg';
-import iconChevronRight from '../assets/icon-chevron-right-lg.svg';
-import iconCalEvent1 from '../assets/icon-cal-event.svg';
-import iconCalEvent2 from '../assets/icon-cal-event-2.svg';
-import iconPlusSm from '../assets/icon-plus-sm.svg';
+import iconChevronLeft from '../../assets/icon-chevron-left-lg.svg';
+import iconChevronRight from '../../assets/icon-chevron-right-lg.svg';
+import iconCalEvent1 from '../../assets/icon-cal-event.svg';
+import iconCalEvent2 from '../../assets/icon-cal-event-2.svg';
+import iconPlusSm from '../../assets/icon-plus-sm.svg';
 import styles from './calendar.module.css';
 
 const days = [

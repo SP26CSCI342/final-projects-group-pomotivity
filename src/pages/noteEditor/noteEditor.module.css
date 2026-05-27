@@ -1,0 +1,217 @@
+:root {
+  --bg-card:         #160b0b;
+  --bg-vocab:        #291c1c;
+  --bg-btn:          #402323;
+ 
+  --border:          #403131;
+  --border-btn:      #7e636f;
+ 
+  --text-primary:    #f5dddc;   /* titles, japanese kanji, btn labels */
+  --text-secondary:  #bfcaba;   /* japanese running text, table headers */
+  --text-muted:      #899486;   /* translation / english body */
+ 
+  --font-serif:      'Newsreader', Georgia, serif;
+  --font-cjk:        'Noto Sans JP', 'WenQuanYi Zen Hei', sans-serif;
+  --font-body:       'Work Sans', system-ui, sans-serif;
+ 
+  --radius-card:     12px;
+  --radius-btn:      8px;
+  --padding-card:    33px;
+}
+ 
+/* ── Outer card ────────────────────────────────────────────── */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+  padding: var(--padding-card);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  width: 100%;
+  box-sizing: border-box;
+}
+ 
+/* ── Header ────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+}
+ 
+.title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+}
+ 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+ 
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+  border-radius: var(--radius-btn);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+ 
+.btn:hover {
+  opacity: 0.85;
+}
+ 
+.btn:active,
+.btnActive {
+  transform: scale(0.97);
+  opacity: 0.7;
+}
+ 
+.btnIcon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+ 
+/* ── Japanese text block ───────────────────────────────────── */
+.japaneseBlock {
+  width: 100%;
+}
+ 
+.japaneseText {
+  font-family: var(--font-cjk);
+  font-size: 18px;
+  line-height: 1.625; /* ~29.25px */
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: pre-wrap;
+}
+ 
+/* ── Translation block ─────────────────────────────────────── */
+.translationBlock {
+  width: 100%;
+}
+ 
+.translationText {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.43; /* ~20px */
+  color: var(--text-muted);
+  margin: 0;
+}
+ 
+/* ── Vocabulary card ───────────────────────────────────────── */
+.vocabCard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: var(--padding-card);
+  background: var(--bg-vocab);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  width: 627px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+ 
+.vocabHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+ 
+.vocabIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 16px;
+  flex-shrink: 0;
+}
+ 
+.vocabIcon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+ 
+.vocabTitle {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin: 0;
+}
+ 
+/* ── Vocabulary table ──────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+ 
+.tableHeaderRow {
+  border-bottom: 1px solid var(--border);
+}
+ 
+.th {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 12px 16px;
+}
+ 
+.tableRow {
+  border-bottom: 1px solid var(--border);
+}
+ 
+.tableRow:last-child {
+  border-bottom: 1px solid var(--border);
+}
+ 
+.td {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text-secondary);
+  padding: 21px 16px;
+  vertical-align: middle;
+}
+ 
+.tdJapanese {
+  font-family: var(--font-cjk);
+  font-size: 18px;
+  line-height: 1.555;
+  color: var(--text-primary);
+  padding-top: 16.5px;
+  padding-bottom: 16.5px;
+}

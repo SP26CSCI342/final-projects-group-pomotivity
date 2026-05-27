@@ -1,10 +1,10 @@
-import iconRewind from '../assets/icon-timer-rewind.svg';
-import iconPause from '../assets/icon-timer-pause.svg';
-import iconForward from '../assets/icon-timer-forward.svg';
-import iconChevronDown from '../assets/icon-chevron-down.svg';
-import iconCheckDone from '../assets/icon-check-done.svg';
-import iconCheckEmpty from '../assets/icon-check-empty.svg';
-import iconPlusThin from '../assets/icon-plus-thin.svg';
+import iconRewind from '../../assets/icon-timer-rewind.svg';
+import iconPause from '../../assets/icon-timer-pause.svg';
+import iconForward from '../../assets/icon-timer-forward.svg';
+import iconChevronDown from '../../assets/icon-chevron-down.svg';
+import iconCheckDone from '../../assets/icon-check-done.svg';
+import iconCheckEmpty from '../../assets/icon-check-empty.svg';
+import iconPlusThin from '../../assets/icon-plus-thin.svg';
 import styles from './timer.module.css';
 
 const goals = [

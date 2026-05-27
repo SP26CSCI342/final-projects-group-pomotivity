@@ -1,8 +1,8 @@
-import iconFolderPlus from '../assets/icon-folder-plus.svg';
-import iconFolderMinus from '../assets/icon-folder-minus.svg';
-import iconFile from '../assets/icon-file.svg';
-import iconFilePlus from '../assets/icon-file-plus.svg';
-import iconClock from '../assets/icon-clock-sm.svg';
+import iconFolderPlus from '../../assets/icon-folder-plus.svg';
+import iconFolderMinus from '../../assets/icon-folder-minus.svg';
+import iconFile from '../../assets/icon-file.svg';
+import iconFilePlus from '../../assets/icon-file-plus.svg';
+import iconClock from '../../assets/icon-clock-sm.svg';
 import styles from './notes.module.css';
 
 const fileTree = [

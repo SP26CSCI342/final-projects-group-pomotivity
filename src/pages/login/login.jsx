@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import logoTomato from '../assets/logo-tomato.svg';
-import iconEmail from '../assets/icon-email.svg';
-import iconKey from '../assets/icon-key.svg';
+import logoTomato from '../../assets/logo-tomato.svg';
+import iconEmail from '../../assets/icon-email.svg';
+import iconKey from '../../assets/icon-key.svg';
 import styles from './login.module.css';
 
 export default function Login() {
