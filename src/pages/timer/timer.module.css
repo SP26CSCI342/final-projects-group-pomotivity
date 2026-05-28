@@ -299,3 +299,26 @@
   height: 10.5px;
   display: block;
 }
+
+.addGoalForm {
+  width: 100%;
+}
+
+.addGoalInput {
+  width: 100%;
+  border: 1px dashed var(--color-accent-green);
+  border-radius: var(--radius-card);
+  padding: 11px 16px;
+  background-color: transparent;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.8px;
+  color: var(--color-text);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.addGoalInput::placeholder {
+  color: var(--color-text-muted);
+}
