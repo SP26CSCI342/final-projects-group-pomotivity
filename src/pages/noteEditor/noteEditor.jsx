@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./NoteEditor.module.css";
+import styles from "./noteEditor.module.css";
  
 const iconClip = "https://www.figma.com/api/mcp/asset/6aacfda3-ca0c-4eb7-a176-cf179fb7ca9c";
 const iconSave = "https://www.figma.com/api/mcp/asset/286dbdbe-53ef-47d8-9a61-19c5d97f7fb2";
