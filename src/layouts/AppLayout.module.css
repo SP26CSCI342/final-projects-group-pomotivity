@@ -1,7 +1,15 @@
 .container {
+  transition: all 0.5s;
   min-height: 100vh;
   background-color: var(--color-bg);
   padding-left: 288px;
+}
+
+.containerNoSidebar {
+  transition: all 0.5s;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  padding-left: 0px;
 }
 
 .main {

@@ -10,6 +10,7 @@ import iconPlus from '../assets/nav-plus.svg';
 import iconSettings from '../assets/nav-settings.svg';
 import iconSignout from '../assets/nav-signout.svg';
 import styles from './Sidebar.module.css';
+import { useState } from 'react';
 
 const mainNav = [
   { to: '/', label: 'Dashboard', end: true, icon: iconDashboard },
@@ -44,33 +45,45 @@ function NavItem({ to, end, label, icon, matchPrefix }) {
   );
 }
 
-export default function Sidebar() {
-  return (
-    <aside className={styles.sidebar}>
-      <div className={styles.brand}>
-        <span>P</span>
-        <img src={logoTomato} alt="" className={styles.brandIcon} />
-        <span>motivity</span>
-      </div>
+export default function Sidebar({show, setShow}) {
 
-      <nav className={styles.nav}>
-        <ul className={styles.navList}>
-          {mainNav.map((item) => (
+  return (
+    
+    <>
+    <aside className={`${styles.sidebar} ${show ? '' : styles.hidden}`}>
+      <button onClick={() => setShow(false)} className={styles.hideButton}>Hide</button>
+      
+        <div className={styles.brand}>
+          <span>P</span>
+          <img src={logoTomato} alt="" className={styles.brandIcon} />
+          <span>motivity</span>
+        </div>
+
+        <nav className={styles.nav}>
+          <ul className={styles.navList}>
+            {mainNav.map((item) => (
+              <NavItem key={item.to} {...item} />
+            ))}
+          </ul>
+        </nav>
+
+        <button type="button" className={styles.cta}>
+          <img src={iconPlus} alt="" className={styles.ctaIcon} />
+          <span>New Note</span>
+        </button>
+
+        <ul className={styles.footer}>
+          {footerNav.map((item) => (
             <NavItem key={item.to} {...item} />
           ))}
         </ul>
-      </nav>
-
-      <button type="button" className={styles.cta}>
-        <img src={iconPlus} alt="" className={styles.ctaIcon} />
-        <span>New Note</span>
-      </button>
-
-      <ul className={styles.footer}>
-        {footerNav.map((item) => (
-          <NavItem key={item.to} {...item} />
-        ))}
-      </ul>
-    </aside>
+      </aside>
+      {!show && (
+        <button onClick={() => setShow(true)} className={styles.showButton}>Show</button>
+      )}
+    </>
+    
+    
   );
+  
 }
