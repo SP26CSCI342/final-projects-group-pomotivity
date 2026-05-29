@@ -134,13 +134,13 @@
   line-height: 22.4px;
 }
 
-.linkForgot {
-  color: var(--color-text-link-red);
-  text-decoration: underline;
+.Form-link {
+  color: var(--color-text);
 }
 
 .linkSignup {
-  color: var(--color-text);
+  color: var(--color-text-link-red);
+  text-decoration: underline;
 }
 
 .submitMargin {
@@ -164,4 +164,14 @@
 
 .submit:hover {
   filter: brightness(1.08);
+}
+
+.Form-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.6rem 0.8rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
 }

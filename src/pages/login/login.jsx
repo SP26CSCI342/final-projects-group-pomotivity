@@ -3,13 +3,59 @@ import logoTomato from '../../assets/logo-tomato.svg';
 import iconEmail from '../../assets/icon-email.svg';
 import iconKey from '../../assets/icon-key.svg';
 import styles from './login.module.css';
+import { useEffect, useState } from 'react';
+import toast from "react-hot-toast";
 
-export default function Login() {
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate('/');
+  // Already logged in? skip the form and jump straight to /profile.
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    if(savedToken) {
+      navigate("/profile");
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    if (!email || !password) {
+      const message = "Username and password are required.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        const message = data.error || "Login failed.";
+        setError(message);
+        toast.error(message);
+        return;
+      }
+
+      localStorage.setItem("User", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+      toast.success(data.message || `Welcome back, ${data.user.firstName}!`);
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      const message = "Network error. Is the server running?";
+      setError(message);
+      toast.error(message);
+    }
   };
 
   return (
@@ -22,6 +68,7 @@ export default function Login() {
         </div>
 
         <div className={styles.card}>
+          {error && <p className='Form-error'>{error}</p>}
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.field}>
               <label htmlFor="login-email" className={styles.label}>Login</label>
@@ -29,10 +76,12 @@ export default function Login() {
                 <img src={iconEmail} alt="" className={styles.inputIcon} />
                 <input
                   id="login-email"
-                  type="email"
+                  type="text"
                   className={styles.input}
                   placeholder="olivia@untitledui.com"
                   autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                 />
               </div>
             </div>
@@ -47,13 +96,15 @@ export default function Login() {
                   className={styles.input}
                   placeholder="st4nl00n@4eva"
                   autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                 />
               </div>
             </div>
 
             <div className={styles.linksMargin}>
               <div className={styles.links}>
-                <a href="#" className={styles.linkForgot}>Forgot your password?</a>
+                <p className={styles.linkForgot}>No account?</p>
                 <Link to="/signup" className={styles.linkSignup}>Sign up</Link>
               </div>
             </div>
@@ -67,3 +118,5 @@ export default function Login() {
     </div>
   );
 }
+
+export default Login;
