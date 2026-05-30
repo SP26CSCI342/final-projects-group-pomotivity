@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import iconNote from '../../assets/icon-note.svg';
 import iconPlay from '../../assets/icon-play.svg';
 import iconChevronLeft from '../../assets/icon-chevron-left.svg';
@@ -8,35 +9,82 @@ import iconPlayMini from '../../assets/icon-play-mini.svg';
 import iconInfo from '../../assets/icon-info.svg';
 import styles from './dashboard.module.css';
 
-const calendarRows = [
-  [
-    { day: 31, muted: true },
-    { day: 1 },
-    { day: 2 },
-    { day: 3 },
-    { day: 4 },
-    { day: 5 },
-    { day: 6 },
-  ],
-  [
-    { day: 7 },
-    { day: 8 },
-    { day: 9 },
-    { day: 10 },
-    { day: 11 },
-    { day: 12 },
-    { day: 13 },
-  ],
-  [
-    { day: 14, active: true },
-    { day: 15 },
-    { day: null, marker: true },
-    { day: 17 },
-    { day: 18 },
-    { day: 19 },
-    { day: 20 },
-  ],
-];
+const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+function startOfMonth(date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function endOfMonth(date) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+function addMonths(date, offset) {
+  return new Date(date.getFullYear(), date.getMonth() + offset, 1);
+}
+
+function formatMonthYear(date) {
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+function formatDateKey(date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function isSameDay(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function buildCalendarDays(currentMonth) {
+  const start = startOfMonth(currentMonth);
+  const end = endOfMonth(currentMonth);
+  const daysInMonth = end.getDate();
+  const prevMonthLastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0).getDate();
+  const startWeekday = start.getDay();
+  const totalCells = 42;
+
+  return Array.from({ length: totalCells }, (_, index) => {
+    const dayIndex = index - startWeekday;
+    let date;
+    let muted = false;
+
+    if (dayIndex < 0) {
+      date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() - 1,
+        prevMonthLastDay + dayIndex + 1,
+      );
+      muted = true;
+    } else if (dayIndex >= daysInMonth) {
+      date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        dayIndex - daysInMonth + 1,
+      );
+      muted = true;
+    } else {
+      date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayIndex + 1);
+    }
+
+    return { date, day: date.getDate(), muted };
+  });
+}
+
+function createEventMap(currentMonth) {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  return {
+    [formatDateKey(new Date(year, month, 14))]: true,
+    [formatDateKey(new Date(year, month, 16))]: true,
+    [formatDateKey(new Date(year, month, 27))]: true,
+  };
+}
 
 const timelines = [
   { title: 'Project Alpha Launch', subtitle: 'In 2 days' },
@@ -51,6 +99,31 @@ const tasks = [
 ];
 
 export default function Dashboard() {
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(today));
+  const [selectedDate, setSelectedDate] = useState(today);
+  const eventsByDate = useMemo(() => createEventMap(currentMonth), [currentMonth]);
+  const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
+
+  const handleChangeMonth = (offset) => {
+    const nextMonth = addMonths(currentMonth, offset);
+    setCurrentMonth(nextMonth);
+
+    const nextMonthEnd = endOfMonth(nextMonth).getDate();
+    const adjustedDay = Math.min(selectedDate.getDate(), nextMonthEnd);
+    setSelectedDate(new Date(nextMonth.getFullYear(), nextMonth.getMonth(), adjustedDay));
+  };
+
+  const handleSelectDate = (date) => {
+    if (
+      date.getFullYear() !== currentMonth.getFullYear() ||
+      date.getMonth() !== currentMonth.getMonth()
+    ) {
+      setCurrentMonth(startOfMonth(date));
+    }
+    setSelectedDate(date);
+  };
+
   return (
     <div className={styles.dashboard}>
       <section className={styles.center}>
@@ -91,28 +164,45 @@ export default function Dashboard() {
       <aside className={styles.widgets}>
         <div className={styles.calWidget}>
           <div className={styles.calHeader}>
-            <span className={styles.calMonth}>June 2026</span>
+            <span className={styles.calMonth}>{formatMonthYear(currentMonth)}</span>
             <div className={styles.calNav}>
-              <button type="button" className={styles.calNavButton} aria-label="Previous month">
+              <button
+                type="button"
+                className={styles.calNavButton}
+                aria-label="Previous month"
+                onClick={() => handleChangeMonth(-1)}
+              >
                 <img src={iconChevronLeft} alt="" className={styles.calChevron} />
               </button>
-              <button type="button" className={styles.calNavButton} aria-label="Next month">
+              <button
+                type="button"
+                className={styles.calNavButton}
+                aria-label="Next month"
+                onClick={() => handleChangeMonth(1)}
+              >
                 <img src={iconChevronRight} alt="" className={styles.calChevron} />
               </button>
             </div>
           </div>
           <div className={styles.calGrid}>
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+            {weekdays.map((d, i) => (
               <div key={i} className={styles.calDow}>{d}</div>
             ))}
-            {calendarRows.flat().map((cell, i) => {
+            {days.map((cell, i) => {
               const cls = [styles.calDay];
               if (cell.muted) cls.push(styles.calDayMuted);
-              if (cell.active) cls.push(styles.calDayActive);
-              if (cell.marker) cls.push(styles.calDayMarker);
+              if (isSameDay(cell.date, selectedDate)) cls.push(styles.calDayActive);
+              const dateKey = formatDateKey(cell.date);
+              const hasEvent = !!eventsByDate[dateKey];
+              if (hasEvent) cls.push(styles.calDayMarker);
+
               return (
-                <div key={i} className={cls.join(' ')}>
-                  {cell.marker ? <img src={iconCalMarker} alt="" /> : cell.day}
+                <div
+                  key={i}
+                  className={cls.join(' ')}
+                  onClick={() => handleSelectDate(cell.date)}
+                >
+                  {hasEvent ? <img src={iconCalMarker} alt="Event marker" /> : cell.day}
                 </div>
               );
             })}

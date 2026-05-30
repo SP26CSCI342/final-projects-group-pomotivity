@@ -195,7 +195,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 0;
+  padding: 3px 0;
   font-family: var(--font-body);
   font-weight: 400;
   font-size: 14px;
@@ -208,7 +208,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 0;
+  padding: 6px 0;
   border-radius: var(--radius-pill);
   font-family: var(--font-body);
   font-weight: 400;
@@ -216,7 +216,7 @@
   line-height: 16.8px;
   color: var(--color-text);
   text-align: center;
-  height: 32.8px;
+  height: 28px;
 }
 
 .calDayMuted {
