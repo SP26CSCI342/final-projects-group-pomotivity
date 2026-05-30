@@ -13,6 +13,7 @@ export default function SignUp() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -20,8 +21,8 @@ export default function SignUp() {
     if (!firstName) {
       return "First name must not be empty.";
     }
-    if (!firstName) {
-      return "First name must not be empty.";
+    if (!lastName) {
+      return "Last name must not be empty.";
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
@@ -29,6 +30,9 @@ export default function SignUp() {
     }
     if (!password || password.length < 8) {
       return "Password must be at least 8 characters.";
+    }
+    if (password !== confirm) {
+      return "The passwords do not match."
     }
     return "";
   }
@@ -81,7 +85,7 @@ export default function SignUp() {
         </div>
 
         <div className={styles.card}>
-          {error && <p className="Form-error">{error}</p>}
+          {error && <p className="form-error">{error}</p>}
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.row}>
               <div className={styles.field}>
@@ -158,6 +162,8 @@ export default function SignUp() {
                   className={styles.input}
                   placeholder="••••••••"
                   autoComplete="new-password"
+                  value={confirm}
+                  onChange={(event) => setConfirm(event.target.value)}
                 />
               </div>
             </div>
