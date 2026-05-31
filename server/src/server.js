@@ -14,11 +14,6 @@ const app = express();
 // defaults to 3000
 const PORT = process.env.PORT || 3000;
 
-// In-memory "database". Cleared every time nodemon restarts.
-// will replace when MongoDB is implemented
-const users = [];
-
-
 app.use(cors());
 app.use(express.json()); // parse JSON bodies
 // parse URL-encoded bodies (e.g., form submissions)
@@ -30,11 +25,28 @@ mongoose.connect(process.env.MONGO_URI, {})
   .then(() => console.log("MongoDB connected."))
   .catch((err) => console.error("MongoDB connection error:", err));
 
+const profileSchema = new mongoose.Schema({
+  firstName: { type: String, required: true, trim: true, minlength: 3 },
+  lastName: { type: String, required: true, trim: true, minlength: 3 },
+  profilePicture: { type: String, default: "" },
+  hoursFocused: { type: Number, default: 0 },
+  currentStreak: { type: Number, default: 0 },
+  tasksCompleted: { type: Number, default: 0 },
+  badges: [{ type: String }],
+  preferences: {
+    pushNotifications: { type: Boolean, default: true },
+    weeklyEmailReport: { type: Boolean, default: true },
+    publicProfile: { type: Boolean, default: false },
+    appTheme: { type: String, enum: ["light", "dark", "system"], default: "system" },
+  },
+});
+
+const Profile = mongoose.model("Profile", profileSchema);
+
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true, unique: true, trim: true, minlength: 3 },
-  lastName: { type: String, required: true, unique: true, trim: true, minlength: 3 },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true, minlength: 8 },
+  profile: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -81,11 +93,24 @@ app.post("/api/register", async(req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({ firstName, lastName, email, password : hashedPassword })
+    // create profile document
+    const profileDoc = await Profile.create({ firstName, lastName });
+
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      profile: profileDoc._id,
+    });
+
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     return res.status(201).json({
       message: "User registered successfully.",
-      user: { firstName, lastName, email},
+      user: {
+        email: newUser.email,
+        profiles: profileDoc,
+      },
+      token,
     });
 
   }catch(error){
@@ -115,15 +140,20 @@ app.post("/api/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // fetch linked profile document
+    let profileDoc = null;
+    if (user.profile) {
+      profileDoc = await Profile.findById(user.profile).lean();
+    }
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     return res.status(200).json({
         success: true,
         message: "Login successful",
         user: {
-            firstName : user.firstName,
-            lastName : user.lastName,
-            email : email
+            email: user.email,
+            profiles: profileDoc || {},
         },
         token,
     });

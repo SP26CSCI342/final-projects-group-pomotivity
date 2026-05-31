@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import avatar from '../../assets/profile-avatar.png';
 import iconEnvelope from '../../assets/icon-envelope.svg';
 import iconEdit from '../../assets/icon-edit.svg';
@@ -13,60 +14,12 @@ import iconMoon from '../../assets/icon-moon.svg';
 import iconChevronDown from '../../assets/icon-chevron-down-sm.svg';
 import styles from './profile.module.css';
 
-const stats = [
-  {
-    label: 'Total Focus Hours',
-    value: '128',
-    unit: 'h',
-    icon: iconClockStat,
-  },
-  {
-    label: 'Current Streak',
-    value: '12',
-    unit: 'days',
-    icon: iconFlame,
-    iconClass: 'statIconStreak',
-  },
-  {
-    label: 'Tasks Completed',
-    value: '45',
-    unit: '',
-    icon: iconCheckCircle,
-  },
-];
-
-const badges = [
-  { label: 'Early Bird', icon: badgeSun, state: 'default' },
-  { label: 'Deep Work\nMaster', icon: badgeTarget, state: 'active' },
-  { label: 'Consistency\nKing', icon: badgeCalendar, state: 'default' },
-  { label: '100h Club', icon: badgeLock, state: 'locked' },
-];
-
-const prefs = [
-  {
-    type: 'toggle',
-    label: 'Push Notifications',
-    desc: 'Receive alerts for session starts and ends.',
-    on: true,
-  },
-  {
-    type: 'toggle',
-    label: 'Weekly Email Report',
-    desc: 'Get a summary of your focus hours every Monday.',
-    on: true,
-  },
-  {
-    type: 'toggle',
-    label: 'Public Profile',
-    desc: 'Allow others to see your badges and focus streak.',
-    on: false,
-  },
-  {
-    type: 'theme',
-    label: 'App Theme',
-    desc: 'Currently using dark mode matching system.',
-  },
-];
+const badgeIcons = {
+  'Early Bird': badgeSun,
+  'Deep Work Master': badgeTarget,
+  'Consistency King': badgeCalendar,
+  '100h Club': badgeLock,
+};
 
 function Toggle({ on }) {
   return (
@@ -82,18 +35,95 @@ function Toggle({ on }) {
 }
 
 export default function Profile() {
+  const [user, setUser] = useState({ profiles: {} });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user') || localStorage.getItem('User');
+
+    if (!storedUser) {
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch (error) {
+      console.warn('Failed to parse user from localStorage', error);
+    }
+  }, []);
+
+  const profile = user.profiles || {};
+  const preferences = profile.preferences || {};
+  const joinedDate = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+    : 'Recently';
+  const displayName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || 'Guest User';
+  const userEmail = user.email || 'No email provided';
+
+  const stats = [
+    {
+      label: 'Total Focus Hours',
+      value: profile.hoursFocused || '0',
+      unit: 'h',
+      icon: iconClockStat,
+    },
+    {
+      label: 'Current Streak',
+      value: profile.currentStreak || '0',
+      unit: 'days',
+      icon: iconFlame,
+      iconClass: 'statIconStreak',
+    },
+    {
+      label: 'Tasks Completed',
+      value: profile.tasksCompleted || '0',
+      unit: '',
+      icon: iconCheckCircle,
+    },
+  ];
+
+  const badgesList = (profile.badges || []).map((badgeName) => ({
+    label: badgeName,
+    icon: badgeIcons[badgeName] || badgeSun,
+    state: 'active',
+  }));
+
+  const prefs = [
+    {
+      type: 'toggle',
+      label: 'Push Notifications',
+      desc: 'Receive alerts for session starts and ends.',
+      on: preferences.pushNotifications !== false,
+    },
+    {
+      type: 'toggle',
+      label: 'Weekly Email Report',
+      desc: 'Get a summary of your focus hours every Monday.',
+      on: preferences.weeklyEmailReport !== false,
+    },
+    {
+      type: 'toggle',
+      label: 'Public Profile',
+      desc: 'Allow others to see your badges and focus streak.',
+      on: preferences.publicProfile === true,
+    },
+    {
+      type: 'theme',
+      label: 'App Theme',
+      desc: `Currently using ${preferences.appTheme || 'system'} theme.`,
+    },
+  ];
   return (
     <section className={styles.profile}>
       {/* User header */}
       <header className={styles.userCard}>
-        <img src={avatar} alt="" className={styles.avatar} />
+        <img src={profile.profilePicture || avatar} alt="User profile" className={styles.avatar} />
         <div className={styles.userInfo}>
-          <h2 className={styles.userName}>Olivia Hye</h2>
+          <h2 className={styles.userName}>{displayName}</h2>
           <p className={styles.userEmail}>
             <img src={iconEnvelope} alt="" className={styles.userEmailIcon} />
-            <span>olivia.hye@example.com</span>
+            <span>{userEmail}</span>
           </p>
-          <p className={styles.userJoined}>Joined January 2023</p>
+          <p className={styles.userJoined}>Joined {joinedDate}</p>
         </div>
         <button type="button" className={styles.editButton}>
           <img src={iconEdit} alt="" className={styles.editIcon} />
@@ -126,13 +156,13 @@ export default function Profile() {
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>Badges &amp; Milestones</h3>
-          <a href="#" className={styles.viewAll}>
+          <button type="button" className={styles.viewAll}>
             <span>View all</span>
             <img src={iconArrowRight} alt="" className={styles.viewAllIcon} />
-          </a>
+          </button>
         </div>
         <div className={styles.badgesCard}>
-          {badges.map((badge) => (
+          {badgesList.map((badge) => (
             <div
               key={badge.label}
               className={`${styles.badge} ${badge.state === 'locked' ? styles.badgeLocked : ''}`}

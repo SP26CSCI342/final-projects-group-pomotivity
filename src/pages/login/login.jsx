@@ -46,15 +46,15 @@ function Login() {
         return;
       }
 
-      localStorage.setItem("User", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token);
-      toast.success(data.message || `Welcome back, ${data.user.firstName}!`);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      toast.success(data.message || `Welcome back, ${data.user.profiles.firstName}!`);
       navigate("/");
     } catch (err) {
       console.error(err);
       const message = "Network error. Is the server running?";
       setError(message);
-      toast.error(message);
+      toast.error(message); 
     }
   };
 

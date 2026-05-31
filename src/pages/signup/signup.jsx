@@ -63,8 +63,8 @@ export default function SignUp() {
         return;
       }
 
-      localStorage.setItem("User", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
       toast.success(data.message || "Signup successful.");
       navigate("/");
     } catch (err) {
