@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import logoTomato from '../assets/logo-tomato.svg';
 import iconDashboard from '../assets/nav-dashboard.svg';
 import iconCalendar from '../assets/nav-calendar.svg';
@@ -23,7 +23,7 @@ const mainNav = [
 
 const footerNav = [
   { to: '/settings', label: 'Settings', icon: iconSettings },
-  { to: '/login', label: 'Sign Out', icon: iconSignout },
+  { label: 'Sign Out', icon: iconSignout, action: 'signout' },
 ];
 
 function NavItem({ to, end, label, icon, matchPrefix }) {
@@ -46,6 +46,15 @@ function NavItem({ to, end, label, icon, matchPrefix }) {
 }
 
 export default function Sidebar({show, setShow}) {
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('User');
+    navigate('/login');
+    setShow(false);
+  };
 
   return (
     
@@ -73,9 +82,18 @@ export default function Sidebar({show, setShow}) {
         </button>
 
         <ul className={styles.footer}>
-          {footerNav.map((item) => (
-            <NavItem key={item.to} {...item} />
-          ))}
+          {footerNav.map((item) =>
+            item.action === 'signout' ? (
+              <li key={item.label}>
+                <button type="button" onClick={handleSignOut} className={styles.navLink}>
+                  <img src={item.icon} alt="" className={styles.navIcon} />
+                  <span>{item.label}</span>
+                </button>
+              </li>
+            ) : (
+              <NavItem key={item.to} {...item} />
+            )
+          )}
         </ul>
       </aside>
       {!show && (
