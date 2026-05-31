@@ -183,6 +183,51 @@ app.post("/api/logout", (req, res) => {
   return res.status(200).json({ message: "Logged out." });
 });
 
+// ============================================================
+// PATCH /api/profile/preferences
+// Update the authenticated user's profile preferences
+// Requires `Authorization: Bearer <token>` header
+// ============================================================
+app.patch("/api/profile/preferences", async (req, res) => {
+  try {
+    const auth = req.headers.authorization || "";
+    if (!auth.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Missing or invalid token." });
+    }
+
+    const token = auth.split(" ")[1];
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ error: "Invalid token." });
+    }
+
+    const userId = payload.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: "User not found." });
+    if (!user.profile) return res.status(404).json({ error: "Profile not found." });
+
+    const allowed = ["pushNotifications", "weeklyEmailReport", "publicProfile", "appTheme"];
+    const updates = (req.body && req.body.preferences) || {};
+    const filtered = {};
+    for (const key of Object.keys(updates)) {
+      if (allowed.includes(key)) filtered[key] = updates[key];
+    }
+
+    const profile = await Profile.findById(user.profile);
+    if (!profile) return res.status(404).json({ error: "Profile not found." });
+
+    profile.preferences = Object.assign({}, profile.preferences || {}, filtered);
+    await profile.save();
+
+    return res.status(200).json({ message: "Preferences updated.", profiles: profile });
+  } catch (error) {
+    console.error("Preferences update error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
 // 404 fallback — must come AFTER every route or it'll eat them.
 app.use((req, res) => {
   return res.status(404).json({ error: "Route not found." });

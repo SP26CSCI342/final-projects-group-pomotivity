@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import avatar from '../../assets/profile-avatar.png';
 import iconEnvelope from '../../assets/icon-envelope.svg';
 import iconEdit from '../../assets/icon-edit.svg';
@@ -21,13 +22,14 @@ const badgeIcons = {
   '100h Club': badgeLock,
 };
 
-function Toggle({ on }) {
+function Toggle({ on, onToggle, ariaLabel }) {
   return (
     <button
       type="button"
       className={`${styles.toggle} ${on ? styles.toggleOn : ''}`}
       aria-pressed={on}
-      aria-label="Toggle setting"
+      aria-label={ariaLabel}
+      onClick={() => onToggle && onToggle(!on)}
     >
       <span className={styles.toggleKnob} />
     </button>
@@ -36,6 +38,7 @@ function Toggle({ on }) {
 
 export default function Profile() {
   const [user, setUser] = useState({ profiles: {} });
+  const [loadingPref, setLoadingPref] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user') || localStorage.getItem('User');
@@ -93,18 +96,21 @@ export default function Profile() {
       label: 'Push Notifications',
       desc: 'Receive alerts for session starts and ends.',
       on: preferences.pushNotifications !== false,
+      key: 'pushNotifications',
     },
     {
       type: 'toggle',
       label: 'Weekly Email Report',
       desc: 'Get a summary of your focus hours every Monday.',
       on: preferences.weeklyEmailReport !== false,
+      key: 'weeklyEmailReport',
     },
     {
       type: 'toggle',
       label: 'Public Profile',
       desc: 'Allow others to see your badges and focus streak.',
       on: preferences.publicProfile === true,
+      key: 'publicProfile',
     },
     {
       type: 'theme',
@@ -112,6 +118,42 @@ export default function Profile() {
       desc: `Currently using ${preferences.appTheme || 'system'} theme.`,
     },
   ];
+
+  async function updatePreference(key, value) {
+    const token = localStorage.getItem('token');
+    const prevUser = JSON.parse(JSON.stringify(user));
+    // optimistic update
+    const updated = { ...user };
+    updated.profiles = { ...updated.profiles, preferences: { ...preferences, [key]: value } };
+    setUser(updated);
+    try {
+      setLoadingPref(true);
+      const res = await fetch('/api/profile/preferences', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: JSON.stringify({ preferences: { [key]: value } }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update preference');
+      }
+      // update localStorage and state with server response
+      const stored = JSON.parse(localStorage.getItem('user') || '{}');
+      stored.profiles = data.profiles;
+      localStorage.setItem('user', JSON.stringify(stored));
+      setUser(stored);
+      toast.success('Preference updated');
+    } catch (err) {
+      console.error('Preference update failed', err);
+      toast.error(err.message || 'Could not update preference');
+      setUser(prevUser);
+    } finally {
+      setLoadingPref(false);
+    }
+  }
   return (
     <section className={styles.profile}>
       {/* User header */}
@@ -205,7 +247,7 @@ export default function Profile() {
                 <p className={styles.prefDesc}>{pref.desc}</p>
               </div>
               {pref.type === 'toggle' ? (
-                <Toggle on={pref.on} />
+                <Toggle on={pref.on} onToggle={(val) => updatePreference(pref.key, val)} ariaLabel={pref.label} />
               ) : (
                 <button type="button" className={styles.themeButton}>
                   <img src={iconMoon} alt="" className={styles.themeIcon} />
