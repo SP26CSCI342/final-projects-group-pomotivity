@@ -25,7 +25,7 @@ const todayIso = formatDateKey(currentYear, currentMonth, currentDay);
 const initialEvents = [
   {
     date: formatDateKey(currentYear, currentMonth, 14),
-    marker: iconCalEvent1,
+    title: 'test event 1'
   },
   {
     date: formatDateKey(currentYear, currentMonth, 15),
@@ -35,7 +35,7 @@ const initialEvents = [
   },
   {
     date: formatDateKey(currentYear, currentMonth, 16),
-    marker: iconCalEvent2,
+    title: 'test event 2'
   },
   {
     date: formatDateKey(currentYear, currentMonth, 27),
