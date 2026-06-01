@@ -52,6 +52,31 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
+const eventSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  date: { type: String, required: true },
+  title: { type: String, required: true },
+  variant: { type: String, default: "green" },
+  time: { type: String, default: "All day" },
+});
+
+const Event = mongoose.model("Event", eventSchema);
+
+function authenticate(req, res, next) {
+  const auth = req.headers.authorization || "";
+  if (!auth.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid token." });
+  }
+
+  try {
+    const token = auth.split(" ")[1];
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = payload.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid token." });
+  }
+}
 
 function validateInputs({ firstName, lastName, email, password}){
     if(!firstName || firstName.length < 3){
@@ -160,6 +185,45 @@ app.post("/api/login", async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error." });
+  }
+});
+
+// ============================================================
+// GET /api/events
+// return the authenticated user's events
+// ============================================================
+app.get("/api/events", authenticate, async (req, res) => {
+  try {
+    const events = await Event.find({ user: req.userId }).lean();
+    return res.status(200).json({ events });
+  } catch (error) {
+    console.error("Get events error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// POST /api/events
+// add a new event for the authenticated user
+// ============================================================
+app.post("/api/events", authenticate, async (req, res) => {
+  const { date, title, variant, time } = req.body || {};
+  if (!date || !title) {
+    return res.status(400).json({ error: "Date and title are required." });
+  }
+
+  try {
+    const event = await Event.create({
+      user: req.userId,
+      date,
+      title,
+      variant: variant || "green",
+      time: time || "All day",
+    });
+    return res.status(201).json({ event });
+  } catch (error) {
+    console.error("Create event error:", error);
+    return res.status(500).json({ error: "Server error." });
   }
 });
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import iconChevronLeft from '../../assets/icon-chevron-left-lg.svg';
 import iconChevronRight from '../../assets/icon-chevron-right-lg.svg';
 import iconCalEvent1 from '../../assets/icon-cal-event.svg';
@@ -22,39 +22,36 @@ const formatDateKey = (year, month, day) =>
 
 const todayIso = formatDateKey(currentYear, currentMonth, currentDay);
 
-const initialEvents = [
-  {
-    date: formatDateKey(currentYear, currentMonth, 14),
-    title: 'test event 1'
-  },
-  {
-    date: formatDateKey(currentYear, currentMonth, 15),
-    title: 'Project Alpha Launch',
-    variant: 'green',
-    time: '09:00 AM - 11:30 AM',
-  },
-  {
-    date: formatDateKey(currentYear, currentMonth, 16),
-    title: 'test event 2'
-  },
-  {
-    date: formatDateKey(currentYear, currentMonth, 27),
-    title: 'Q3 Review',
-    variant: 'red',
-    time: '01:00 PM - 01:30 PM',
-  },
-];
-
 const startWeekday = new Date(currentYear, currentMonth, 1).getDay();
 const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
 
 export default function Calendar() {
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [newTitle, setNewTitle] = useState('');
   const [newDate, setNewDate] = useState(todayIso);
   const [newVariant, setNewVariant] = useState('green');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    fetch('/api/events', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.events)) {
+          setEvents(data.events);
+        }
+      })
+      .catch((error) => {
+        console.error('Error loading calendar events:', error);
+      });
+  }, []);
 
   const eventsByDate = useMemo(
     () =>
@@ -99,22 +96,44 @@ export default function Calendar() {
     days.push({ empty: true });
   }
 
-  const handleAddEvent = (e) => {
+  const handleAddEvent = async (e) => {
     e.preventDefault();
     const title = newTitle.trim();
     if (!title) return;
 
-    setEvents((currentEvents) => [
-      ...currentEvents,
-      {
-        date: newDate,
-        title,
-        variant: newVariant,
-        time: 'All day',
-      },
-    ]);
-    setNewTitle('');
-    setSelectedDate(newDate);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token available.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          date: newDate,
+          title,
+          variant: newVariant,
+          time: 'All day',
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Failed to create event:', data.error || data);
+        return;
+      }
+
+      setEvents((currentEvents) => [...currentEvents, data.event]);
+      setNewTitle('');
+      setSelectedDate(newDate);
+    } catch (error) {
+      console.error('Error saving calendar event:', error);
+    }
   };
 
   return (
@@ -154,10 +173,14 @@ export default function Calendar() {
                 className={cls.join(' ')}
                 role={cell.empty ? undefined : 'button'}
                 tabIndex={cell.empty ? undefined : 0}
-                onClick={cell.empty ? undefined : () => setSelectedDate(cell.dateKey)}
+                onClick={cell.empty ? undefined : () => {
+                  setSelectedDate(cell.dateKey);
+                  setNewDate(cell.dateKey);
+                }}
                 onKeyDown={cell.empty ? undefined : (event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     setSelectedDate(cell.dateKey);
+                    setNewDate(cell.dateKey);
                   }
                 }}
               >
