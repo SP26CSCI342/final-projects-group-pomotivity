@@ -22,16 +22,21 @@ const formatDateKey = (year, month, day) =>
 
 const todayIso = formatDateKey(currentYear, currentMonth, currentDay);
 
-const startWeekday = new Date(currentYear, currentMonth, 1).getDay();
-const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
-
 export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [newTitle, setNewTitle] = useState('');
   const [newDate, setNewDate] = useState(todayIso);
   const [newVariant, setNewVariant] = useState('green');
+  const [visibleMonth, setVisibleMonth] = useState(currentMonth);
+  const [visibleYear, setVisibleYear] = useState(currentYear);
+
+  const visibleDate = new Date(visibleYear, visibleMonth, 1);
+  const monthLabel = visibleDate.toLocaleString('default', { month: 'long' });
+  const displayYear = visibleDate.getFullYear();
+  const startWeekday = visibleDate.getDay();
+  const daysInMonth = new Date(visibleYear, visibleMonth + 1, 0).getDate();
+  const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -64,7 +69,8 @@ export default function Calendar() {
   );
 
   const selectedEvents = eventsByDate[selectedDate] || [];
-  const selectedLabel = new Date(selectedDate).toLocaleDateString('en-US', {
+  const [selectedYear, selectedMonth, selectedDay] = selectedDate.split('-').map(Number);
+  const selectedLabel = new Date(selectedYear, selectedMonth - 1, selectedDay).toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -78,7 +84,7 @@ export default function Calendar() {
   }
 
   for (let day = 1; day <= daysInMonth; day += 1) {
-    const dateKey = formatDateKey(currentYear, currentMonth, day);
+    const dateKey = formatDateKey(visibleYear, visibleMonth, day);
     const dayEvents = eventsByDate[dateKey] || [];
     const markerEvent = dayEvents.find((ev) => ev.marker);
 
@@ -141,12 +147,36 @@ export default function Calendar() {
       <p className={styles.date}>{currentDateLabel}</p>
 
       <div className={styles.headerRow}>
-        <h2 className={styles.heading}>{`${monthLabel} ${currentYear}`}</h2>
+        <h2 className={styles.heading}>{`${monthLabel} ${displayYear}`}</h2>
         <div className={styles.navButtons}>
-          <button type="button" className={styles.navButton} aria-label="Previous month">
+          <button
+            type="button"
+            className={styles.navButton}
+            aria-label="Previous month"
+            onClick={() => {
+              if (visibleMonth === 0) {
+                setVisibleMonth(11);
+                setVisibleYear((prev) => prev - 1);
+              } else {
+                setVisibleMonth((prev) => prev - 1);
+              }
+            }}
+          >
             <img src={iconChevronLeft} alt="" className={styles.navChevron} />
           </button>
-          <button type="button" className={styles.navButton} aria-label="Next month">
+          <button
+            type="button"
+            className={styles.navButton}
+            aria-label="Next month"
+            onClick={() => {
+              if (visibleMonth === 11) {
+                setVisibleMonth(0);
+                setVisibleYear((prev) => prev + 1);
+              } else {
+                setVisibleMonth((prev) => prev + 1);
+              }
+            }}
+          >
             <img src={iconChevronRight} alt="" className={styles.navChevron} />
           </button>
         </div>
