@@ -39,6 +39,10 @@ function Toggle({ on, onToggle, ariaLabel }) {
 export default function Profile() {
   const [user, setUser] = useState({ profiles: {} });
   const [loadingPref, setLoadingPref] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [profileError, setProfileError] = useState('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user') || localStorage.getItem('User');
@@ -154,22 +158,128 @@ export default function Profile() {
       setLoadingPref(false);
     }
   }
+
+  function startEditing() {
+    setEditFirstName(profile.firstName || '');
+    setEditLastName(profile.lastName || '');
+    setProfileError('');
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setIsEditing(false);
+    setProfileError('');
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    const firstName = editFirstName.trim();
+    const lastName = editLastName.trim();
+
+    if (firstName.length < 3) {
+      setProfileError('First name must be at least 3 characters.');
+      return;
+    }
+
+    if (lastName.length < 3) {
+      setProfileError('Last name must be at least 3 characters.');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setProfileError('You must be logged in to update your profile.');
+      return;
+    }
+
+    try {
+      setLoadingPref(true);
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ firstName, lastName }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Could not update profile.');
+      }
+
+      const stored = JSON.parse(localStorage.getItem('user') || localStorage.getItem('User') || '{}');
+      stored.profiles = data.profiles;
+      localStorage.setItem('user', JSON.stringify(stored));
+      setUser(stored);
+      setIsEditing(false);
+      setProfileError('');
+      toast.success('Profile updated');
+    } catch (err) {
+      console.error('Profile update failed', err);
+      setProfileError(err.message || 'Could not update profile.');
+      toast.error(err.message || 'Could not update profile');
+    } finally {
+      setLoadingPref(false);
+    }
+  }
+
   return (
     <section className={styles.profile}>
       {/* User header */}
       <header className={styles.userCard}>
         <img src={profile.profilePicture || avatar} alt="User profile" className={styles.avatar} />
         <div className={styles.userInfo}>
-          <h2 className={styles.userName}>{displayName}</h2>
-          <p className={styles.userEmail}>
-            <img src={iconEnvelope} alt="" className={styles.userEmailIcon} />
-            <span>{userEmail}</span>
-          </p>
-          <p className={styles.userJoined}>Joined {joinedDate}</p>
+          {isEditing ? (
+            <form className={styles.profileForm} onSubmit={saveProfile}>
+              {profileError ? <p className={styles.profileError}>{profileError}</p> : null}
+              <div className={styles.profileFormRow}>
+                <label htmlFor="firstName">First name</label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={editFirstName}
+                  onChange={(e) => setEditFirstName(e.target.value)}
+                  className={styles.profileInput}
+                />
+              </div>
+              <div className={styles.profileFormRow}>
+                <label htmlFor="lastName">Last name</label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={editLastName}
+                  onChange={(e) => setEditLastName(e.target.value)}
+                  className={styles.profileInput}
+                />
+              </div>
+              <div className={styles.profileButtons}>
+                <button type="submit" className={styles.editButton} disabled={loadingPref}>
+                  Save
+                </button>
+                <button type="button" className={styles.cancelButton} onClick={cancelEditing}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <h2 className={styles.userName}>{displayName}</h2>
+              <p className={styles.userEmail}>
+                <img src={iconEnvelope} alt="" className={styles.userEmailIcon} />
+                <span>{userEmail}</span>
+              </p>
+              <p className={styles.userJoined}>Joined {joinedDate}</p>
+            </>
+          )}
         </div>
-        <button type="button" className={styles.editButton}>
+        <button
+          type="button"
+          className={styles.editButton}
+          onClick={isEditing ? cancelEditing : startEditing}
+          aria-label={isEditing ? 'Cancel profile edit' : 'Edit profile'}
+        >
           <img src={iconEdit} alt="" className={styles.editIcon} />
-          <span>Edit Profile</span>
+          <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
         </button>
       </header>
 
