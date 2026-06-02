@@ -57,8 +57,7 @@ const eventSchema = new mongoose.Schema({
   date: { type: String, required: true },
   title: { type: String, required: true },
   variant: { type: String, default: "green" },
-  startTime: { type: String, default: "" },
-  endTime: { type: String, default: "" },
+  time: { type: String, default: "All day" },
 });
 
 const Event = mongoose.model("Event", eventSchema);
@@ -208,13 +207,9 @@ app.get("/api/events", authenticate, async (req, res) => {
 // add a new event for the authenticated user
 // ============================================================
 app.post("/api/events", authenticate, async (req, res) => {
-  const { date, title, variant, startTime, endTime } = req.body || {};
+  const { date, title, variant, time } = req.body || {};
   if (!date || !title) {
     return res.status(400).json({ error: "Date and title are required." });
-  }
-
-  if (startTime && endTime && endTime < startTime) {
-    return res.status(400).json({ error: "End time must be after start time." });
   }
 
   try {
@@ -223,8 +218,7 @@ app.post("/api/events", authenticate, async (req, res) => {
       date,
       title,
       variant: variant || "green",
-      startTime: startTime || "",
-      endTime: endTime || "",
+      time: time || "All day",
     });
     return res.status(201).json({ event });
   } catch (error) {
@@ -234,45 +228,31 @@ app.post("/api/events", authenticate, async (req, res) => {
 });
 
 // ============================================================
-// PATCH /api/profile
-// PATCH /api/profiles
-// Update the authenticated user's basic profile details
-// Requires `Authorization: Bearer <token>` header
+// POST /api/logout
 // ============================================================
-app.patch(["/api/profile", "/api/profiles"], authenticate, async (req, res) => {
-  try {
-    const { firstName, lastName } = req.body || {};
-
-    if (!firstName || firstName.length < 3) {
-      return res.status(400).json({ error: "First name must be at least 3 characters long." });
+app.post("/api/logout", (req, res) => {
+    
+    req.headers.authorization = req.headers.authorization || "";
+    if (!req.headers.authorization.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Missing or invalid token." });
+    }
+    
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({ error: "Invalid token." });
     }
 
-    if (!lastName || lastName.length < 3) {
-      return res.status(400).json({ error: "Last name must be at least 3 characters long." });
-    }
-
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ error: "User not found." });
-    if (!user.profile) return res.status(404).json({ error: "Profile not found." });
-
-    const profile = await Profile.findById(user.profile);
-    if (!profile) return res.status(404).json({ error: "Profile not found." });
-
-    profile.firstName = firstName;
-    profile.lastName = lastName;
-    await profile.save();
-
-    return res.status(200).json({ message: "Profile updated.", profiles: profile });
-  } catch (error) {
-    console.error("Profile update error:", error);
-    return res.status(500).json({ error: "Server error." });
-  }
+  return res.status(200).json({ message: "Logged out." });
 });
 
 // ============================================================
-// POST /api/logout
+// PATCH /api/profile/preferences
+// Update the authenticated user's profile preferences
+// Requires `Authorization: Bearer <token>` header
 // ============================================================
-app.post("/api/logout", async (req, res) => {
+app.patch("/api/profile/preferences", async (req, res) => {
   try {
     const auth = req.headers.authorization || "";
     if (!auth.startsWith("Bearer ")) {
