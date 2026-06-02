@@ -57,7 +57,8 @@ const eventSchema = new mongoose.Schema({
   date: { type: String, required: true },
   title: { type: String, required: true },
   variant: { type: String, default: "green" },
-  time: { type: String, default: "All day" },
+  startTime: { type: String, default: "" },
+  endTime: { type: String, default: "" },
 });
 
 const Event = mongoose.model("Event", eventSchema);
@@ -207,9 +208,13 @@ app.get("/api/events", authenticate, async (req, res) => {
 // add a new event for the authenticated user
 // ============================================================
 app.post("/api/events", authenticate, async (req, res) => {
-  const { date, title, variant, time } = req.body || {};
+  const { date, title, variant, startTime, endTime } = req.body || {};
   if (!date || !title) {
     return res.status(400).json({ error: "Date and title are required." });
+  }
+
+  if (startTime && endTime && endTime < startTime) {
+    return res.status(400).json({ error: "End time must be after start time." });
   }
 
   try {
@@ -218,7 +223,8 @@ app.post("/api/events", authenticate, async (req, res) => {
       date,
       title,
       variant: variant || "green",
-      time: time || "All day",
+      startTime: startTime || "",
+      endTime: endTime || "",
     });
     return res.status(201).json({ event });
   } catch (error) {

@@ -259,6 +259,118 @@
   min-height: 128.39px;
 }
 
+.calendarWrapper {
+  width: 100%;
+  min-width: 600px;
+  background-color: var(--color-bg);
+  border: 1px solid #40493e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendarLib {
+  width: 100%;
+  border: none;
+}
+
+.calendarLib :global(.react-calendar) {
+  width: 100%;
+  border: none;
+  font-family: var(--font-body);
+}
+
+.calendarLib :global(.react-calendar__navigation) {
+  display: none;
+}
+
+.calendarLib :global(.react-calendar__month-view__weekdays) {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  background-color: var(--color-bg-aside);
+  border-bottom: 1px solid #40493e;
+}
+
+.calendarLib :global(.react-calendar__month-view__weekdays__weekday) {
+  padding: 15.5px 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22.4px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.calendarLib :global(.react-calendar__month-view__days) {
+  background-color: #40493e;
+  gap: 0;
+}
+
+.calendarLib :global(.react-calendar__tile) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  background-color: var(--color-bg);
+  min-height: 100px;
+  padding: 10px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  border: 1px solid #40493e;
+  color: var(--color-text);
+}
+
+.calendarLib :global(.react-calendar__tile:enabled:hover) {
+  background-color: var(--color-surface-input);
+}
+
+.calendarLib :global(.react-calendar__tile--now) {
+  background-color: var(--color-surface-input);
+}
+
+.calendarLib :global(.react-calendar__tile--active),
+.calendarLib :global(.react-calendar__tile--hasActive),
+.calendarLib :global(.react-calendar__tile--active:enabled:hover),
+.calendarLib :global(.react-calendar__tile--active:enabled:focus),
+.calendarLib :global(.react-calendar__tile--hasActive:enabled:hover),
+.calendarLib :global(.react-calendar__tile--hasActive:enabled:focus) {
+  background-color: rgba(132, 218, 135, 0.16);
+}
+
+.calendarLib :global(.react-calendar__tile:focus) {
+  outline: none;
+  box-shadow: none;
+  background-color: var(--color-bg);
+}
+
+.calendarLib :global(.react-calendar__month-view__days__day--neighboringMonth) {
+  color: rgba(191, 202, 186, 0.5);
+}
+
+.calendarLib :global(.react-calendar__tile:focus) {
+  outline: none;
+  box-shadow: none;
+}
+
+.tileEvents {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todayTile {
+  background-color: var(--color-surface-input);
+}
+
+.selectedTile {
+  background-color: rgba(132, 218, 135, 0.16);
+}
+
+.hasEventTile {
+  border-bottom: 3px solid var(--color-accent-green);
+}
+
 .quickAdd {
   background-color: var(--color-surface-input);
   border: 1px solid #40493e;
