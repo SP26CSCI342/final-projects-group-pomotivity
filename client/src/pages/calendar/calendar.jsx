@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import CalendarLib from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+import iconChevronLeft from '../../assets/icon-chevron-left-lg.svg';
+import iconChevronRight from '../../assets/icon-chevron-right-lg.svg';
+import iconCalEvent1 from '../../assets/icon-cal-event.svg';
+import iconCalEvent2 from '../../assets/icon-cal-event-2.svg';
 import iconPlusSm from '../../assets/icon-plus-sm.svg';
 import styles from './calendar.module.css';
 
 const now = new Date();
+const currentDay = now.getDate();
+const currentMonth = now.getMonth();
+const currentYear = now.getFullYear();
+const monthLabel = now.toLocaleString('default', { month: 'long' });
 const currentDateLabel = now.toLocaleDateString('en-US', {
   weekday: 'long',
   month: 'long',
@@ -14,30 +20,23 @@ const currentDateLabel = now.toLocaleDateString('en-US', {
 const formatDateKey = (year, month, day) =>
   `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-const todayIso = formatDateKey(now.getFullYear(), now.getMonth(), now.getDate());
-
-function makeDateKey(date) {
-  return formatDateKey(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function parseDateKey(dateKey) {
-  const [year, month, day] = dateKey.split('-').map(Number);
-  return new Date(year, month - 1, day);
-}
+const todayIso = formatDateKey(currentYear, currentMonth, currentDay);
 
 export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [newTitle, setNewTitle] = useState('');
   const [newDate, setNewDate] = useState(todayIso);
-  const [newStartTime, setNewStartTime] = useState('');
-  const [newEndTime, setNewEndTime] = useState('');
   const [newVariant, setNewVariant] = useState('green');
-  const [formError, setFormError] = useState('');
-  const [viewDate, setViewDate] = useState(new Date());
+  const [visibleMonth, setVisibleMonth] = useState(currentMonth);
+  const [visibleYear, setVisibleYear] = useState(currentYear);
 
-  const monthLabel = viewDate.toLocaleString('default', { month: 'long' });
-  const displayYear = viewDate.getFullYear();
+  const visibleDate = new Date(visibleYear, visibleMonth, 1);
+  const monthLabel = visibleDate.toLocaleString('default', { month: 'long' });
+  const displayYear = visibleDate.getFullYear();
+  const startWeekday = visibleDate.getDay();
+  const daysInMonth = new Date(visibleYear, visibleMonth + 1, 0).getDate();
+  const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -69,16 +68,7 @@ export default function Calendar() {
     [events],
   );
 
-  const selectedEvents = useMemo(() => {
-    const dayEvents = eventsByDate[selectedDate] || [];
-    return [...dayEvents].sort((a, b) => {
-      if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime);
-      if (a.startTime) return -1;
-      if (b.startTime) return 1;
-      return a.title.localeCompare(b.title);
-    });
-  }, [eventsByDate, selectedDate]);
-
+  const selectedEvents = eventsByDate[selectedDate] || [];
   const [selectedYear, selectedMonth, selectedDay] = selectedDate.split('-').map(Number);
   const selectedLabel = new Date(selectedYear, selectedMonth - 1, selectedDay).toLocaleDateString('en-US', {
     weekday: 'long',
@@ -87,24 +77,36 @@ export default function Calendar() {
     year: 'numeric',
   });
 
-  const handleDateChange = (date) => {
-    const dateKey = makeDateKey(date);
-    setSelectedDate(dateKey);
-    setNewDate(dateKey);
-    setViewDate(date);
-  };
+  const days = [];
+
+  for (let i = 0; i < startWeekday; i += 1) {
+    days.push({ empty: true });
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const dateKey = formatDateKey(visibleYear, visibleMonth, day);
+    const dayEvents = eventsByDate[dateKey] || [];
+    const markerEvent = dayEvents.find((ev) => ev.marker);
+
+    days.push({
+      day,
+      dateKey,
+      events: dayEvents.filter((ev) => !ev.marker),
+      marker: markerEvent?.marker,
+      highlight: day === currentDay,
+      selected: dateKey === selectedDate,
+    });
+  }
+
+  while (days.length < totalCells) {
+    days.push({ empty: true });
+  }
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
     const title = newTitle.trim();
     if (!title) return;
 
-    if (newStartTime && newEndTime && newEndTime < newStartTime) {
-      setFormError('End time must be after start time.');
-      return;
-    }
-
-    setFormError('');
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No authentication token available.');
@@ -122,8 +124,7 @@ export default function Calendar() {
           date: newDate,
           title,
           variant: newVariant,
-          startTime: newStartTime,
-          endTime: newEndTime,
+          time: 'All day',
         }),
       });
 
@@ -135,47 +136,10 @@ export default function Calendar() {
 
       setEvents((currentEvents) => [...currentEvents, data.event]);
       setNewTitle('');
-      setNewStartTime('');
-      setNewEndTime('');
       setSelectedDate(newDate);
     } catch (error) {
       console.error('Error saving calendar event:', error);
     }
-  };
-
-  const tileContent = ({ date, view }) => {
-    if (view !== 'month') return null;
-
-    const dateKey = makeDateKey(date);
-    const dayEvents = eventsByDate[dateKey] || [];
-    if (dayEvents.length === 0) return null;
-
-    return (
-      <div className={styles.tileEvents}>
-        {dayEvents.slice(0, 2).map((event, index) => (
-          <span
-            key={index}
-            className={`${styles.eventChip} ${
-              event.variant === 'red' ? styles.eventChipRed : styles.eventChipGreen
-            }`}
-          >
-            {event.title}
-          </span>
-        ))}
-      </div>
-    );
-  };
-
-  const tileClassName = ({ date, view }) => {
-    if (view !== 'month') return '';
-    const dateKey = makeDateKey(date);
-    return [
-      dateKey === todayIso ? styles.todayTile : '',
-      dateKey === selectedDate ? styles.selectedTile : '',
-      eventsByDate[dateKey]?.length ? styles.hasEventTile : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
   };
 
   return (
@@ -184,39 +148,98 @@ export default function Calendar() {
 
       <div className={styles.headerRow}>
         <h2 className={styles.heading}>{`${monthLabel} ${displayYear}`}</h2>
-
         <div className={styles.navButtons}>
           <button
             type="button"
             className={styles.navButton}
             aria-label="Previous month"
-            onClick={() => setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
+            onClick={() => {
+              if (visibleMonth === 0) {
+                setVisibleMonth(11);
+                setVisibleYear((prev) => prev - 1);
+              } else {
+                setVisibleMonth((prev) => prev - 1);
+              }
+            }}
           >
-            <span className={styles.navChevron}>&lt;</span>
+            <img src={iconChevronLeft} alt="" className={styles.navChevron} />
           </button>
           <button
             type="button"
             className={styles.navButton}
             aria-label="Next month"
-            onClick={() => setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
+            onClick={() => {
+              if (visibleMonth === 11) {
+                setVisibleMonth(0);
+                setVisibleYear((prev) => prev + 1);
+              } else {
+                setVisibleMonth((prev) => prev + 1);
+              }
+            }}
           >
-            <span className={styles.navChevron}>&gt;</span>
+            <img src={iconChevronRight} alt="" className={styles.navChevron} />
           </button>
         </div>
       </div>
 
-      <div className={styles.calendarWrapper}>
-        <CalendarLib
-          onChange={handleDateChange}
-          value={parseDateKey(selectedDate)}
-          activeStartDate={viewDate}
-          onActiveStartDateChange={({ activeStartDate }) => setViewDate(activeStartDate)}
-          showNavigation={false}
-          calendarType="gregory"
-          tileContent={tileContent}
-          tileClassName={tileClassName}
-          className={styles.calendarLib}
-        />
+      <div className={styles.gridFrame}>
+        <div className={styles.dowHeader}>
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+            <div key={d} className={styles.dowCell}>
+              {d}
+            </div>
+          ))}
+        </div>
+        <div className={styles.grid}>
+          {days.map((cell, i) => {
+            const cls = [styles.day];
+            if (cell.empty) cls.push(styles.dayEmpty);
+            if (cell.highlight) cls.push(styles.dayHighlight);
+            if (cell.selected) cls.push(styles.daySelected);
+
+            return (
+              <div
+                key={i}
+                className={cls.join(' ')}
+                role={cell.empty ? undefined : 'button'}
+                tabIndex={cell.empty ? undefined : 0}
+                onClick={cell.empty ? undefined : () => {
+                  setSelectedDate(cell.dateKey);
+                  setNewDate(cell.dateKey);
+                }}
+                onKeyDown={cell.empty ? undefined : (event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    setSelectedDate(cell.dateKey);
+                    setNewDate(cell.dateKey);
+                  }
+                }}
+              >
+                {!cell.empty && (
+                  <>
+                    <span className={styles.dayNumber}>{cell.day}</span>
+                    {cell.marker && (
+                      <img src={cell.marker} alt="Event marker" className={styles.dayMarker} />
+                    )}
+                    {cell.events && cell.events.length > 0 && (
+                      <div className={styles.dayEvents}>
+                        {cell.events.map((ev, j) => (
+                          <span
+                            key={j}
+                            className={`${styles.eventChip} ${
+                              ev.variant === 'red' ? styles.eventChipRed : styles.eventChipGreen
+                            }`}
+                          >
+                            {ev.title}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className={styles.agenda}>
@@ -233,11 +256,7 @@ export default function Calendar() {
                   />
                   <div className={styles.eventMeta}>
                     <span className={styles.eventTitle}>{event.title}</span>
-                    <span className={styles.eventTime}>
-                      {event.startTime && event.endTime
-                        ? `${event.startTime} - ${event.endTime}`
-                        : event.startTime || event.endTime || event.time || 'All day'}
-                    </span>
+                    <span className={styles.eventTime}>{event.time || 'All day'}</span>
                   </div>
                 </div>
               ))
@@ -254,9 +273,6 @@ export default function Calendar() {
           <div className={styles.quickAddWrap}>
             <form className={styles.quickAdd} onSubmit={handleAddEvent}>
               <h4 className={styles.quickAddTitle}>Quick Add Event</h4>
-              {formError ? (
-                <p style={{ color: '#d32f2f', marginBottom: '0.75rem' }}>{formError}</p>
-              ) : null}
               <div className={styles.quickAddRow}>
                 <input
                   type="text"
@@ -279,30 +295,6 @@ export default function Calendar() {
                   className={styles.quickAddInput}
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
-                />
-              </div>
-              <div className={styles.quickAddRow}>
-                <label className={styles.quickAddLabel} htmlFor="eventStartTime">
-                  Start
-                </label>
-                <input
-                  id="eventStartTime"
-                  type="time"
-                  className={styles.quickAddInput}
-                  value={newStartTime}
-                  onChange={(e) => setNewStartTime(e.target.value)}
-                />
-              </div>
-              <div className={styles.quickAddRow}>
-                <label className={styles.quickAddLabel} htmlFor="eventEndTime">
-                  End
-                </label>
-                <input
-                  id="eventEndTime"
-                  type="time"
-                  className={styles.quickAddInput}
-                  value={newEndTime}
-                  onChange={(e) => setNewEndTime(e.target.value)}
                 />
               </div>
               <div className={styles.quickAddRow}>
