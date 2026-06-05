@@ -14,6 +14,7 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+// AI was used at a high level to discuss the math for this specific function
 function arcPath(progress) {
   if (progress <= 0) return null;
   if (progress >= 1) return 'M 12,240 A 228,228 0 0,1 468,240';
