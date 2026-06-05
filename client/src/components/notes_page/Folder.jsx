@@ -2,12 +2,10 @@ import iconFolderPlus from '../../assets/icon-folder-plus.svg';
 import iconFolderMinus from '../../assets/icon-folder-minus.svg';
 import iconFile from '../../assets/icon-file.svg';
 import iconFilePlus from '../../assets/icon-file-plus.svg';
-import iconClock from '../../assets/icon-clock-sm.svg';
 import styles from '../../pages/notes/notes.module.css';
 
 import File from './File';
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const iconFor = {
   'folder-plus': iconFolderPlus,
@@ -16,36 +14,120 @@ const iconFor = {
   'file-plus': iconFilePlus,
 };
 
-let files = [{ type: 'file', label: 'Overview', dir: false }]
+export default function Folder({ node, path, currentFile, setCurrentFile, onAdd, onRemove }) {
+  const { label, children = [] } = node;
 
+  // Collapse / expand
+  const [showSub, setShowSub] = useState(false);
+  const icon = showSub ? 'folder-minus' : 'folder-plus';
 
-export default function Folder ({name, dir, setCurrentFIle}){
+  // Inline input for new file / folder
+  const [isAddingFile, setIsAddingFile] = useState(false);
+  const [isAddingFolder, setIsAddingFolder] = useState(false);
+  const [newItemLabel, setNewItemLabel] = useState('');
+  const addInputRef = useRef(null);
 
-    const [showSub, setShowSub] = useState(false)
-    const [icon, setIcon] = useState('folder-plus')
+  useEffect(() => {
+    if (isAddingFile || isAddingFolder) addInputRef.current?.focus();
+  }, [isAddingFile, isAddingFolder]);
 
-    useEffect(() => {
-      showSub ? setIcon('folder-minus') : setIcon('folder-plus')
-    }, [showSub])
-    return(
-      <>
-        <button value={showSub} onClick={() => setShowSub(val => !val)} type="button" className={`${styles.fileItem}`}>
-                <img src={iconFor[icon]} alt="" className={styles.fileIcon} />
-                <span>{name}</span>
-        </button>
-        {showSub ?
-            <div style={{paddingLeft: 50}}>
-              {files.map((file, i) => (
-                file.dir ?
-                <Folder key={i} name={file.label} dir={file.dir} setCurrentFIle={setCurrentFIle}></Folder>
-                : <File key={i} name={file.label} dir={file.dir} setCurrentFIle={setCurrentFIle}></File>
-              ))}
-              {/*<button>New..</button>*/}
-            </div>
-          :
-          null
-        }
-      </>
+  function commitItem(isDir) {
+    const trimmed = newItemLabel.trim();
+    if (trimmed) {
+      onAdd(isDir ? 'folder-plus' : 'file', trimmed, isDir, path);
+    }
+    setNewItemLabel('');
+    setIsAddingFile(false);
+    setIsAddingFolder(false);
+  }
 
-    )
+  const removeChild = (childLabel) => onRemove(childLabel, path);
+
+  return (
+    <>
+      {/* Folder row */}
+      <span className={styles.fileContainer} style={{ display: 'flex', gap: 10 }}>
+
+        {/* Folder toggle button */}
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => setShowSub(v => !v)}
+            type="button"
+            className={styles.fileItem}
+          >
+            <img src={iconFor[icon]} alt="" className={styles.fileIcon} />
+            <span>{label}</span>
+          </button>
+        </span>
+
+        {/* Add folder / add file / delete self */}
+        <span style={{ alignItems: 'center', display: 'flex', gap: 2 }}>
+          <button className={styles.hoverButton} onClick={() => setIsAddingFolder(true)}>
+            <img src={iconFor['folder-plus']} alt="" className={styles.fileIcon} />
+          </button>
+          <button className={styles.hoverButton} onClick={() => setIsAddingFile(true)}>
+            <img src={iconFor['file-plus']} alt="" className={styles.fileIcon} />
+          </button>
+          <button className={styles.hoverButton} onClick={() => onRemove(label, path.slice(0, -1))}>
+            X
+          </button>
+        </span>
+
+      </span>
+
+      {/* Inline input — new file */}
+      {isAddingFile && (
+        <form onSubmit={e => { e.preventDefault(); commitItem(false); }}>
+          <input
+            ref={addInputRef}
+            value={newItemLabel}
+            onChange={e => setNewItemLabel(e.target.value)}
+            onBlur={() => commitItem(false)}
+            placeholder="Note name..."
+          />
+        </form>
+      )}
+
+      {/* Inline input — new folder */}
+      {isAddingFolder && (
+        <form onSubmit={e => { e.preventDefault(); commitItem(true); }}>
+          <input
+            ref={addInputRef}
+            value={newItemLabel}
+            onChange={e => setNewItemLabel(e.target.value)}
+            onBlur={() => commitItem(true)}
+            placeholder="Folder name..."
+          />
+        </form>
+      )}
+
+      {/* Children — only rendered when expanded */}
+      {showSub && (
+        <div style={{ paddingLeft: 16 }}>
+          {children.map((child, i) =>
+            child.dir ? (
+              <Folder
+                key={i}
+                node={child}
+                path={[...path, child.label]}
+                currentFile={currentFile}
+                setCurrentFile={setCurrentFile}
+                onAdd={onAdd}
+                onRemove={onRemove}
+              />
+            ) : (
+              <File
+                key={i}
+                name={child.label}
+                dir={child.dir}
+                currentFile={currentFile}
+                setCurrentFile={setCurrentFile}
+                parentRemoveFile={removeChild}
+              />
+            )
+          )}
+        </div>
+      )}
+    </>
+  );
 }

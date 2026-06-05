@@ -9,9 +9,19 @@ import File from './File';
 
 import { useEffect, useState } from 'react';
 
-export default function Note({title, cardTitle, body, onChange}) {
+function timeAgo(timestamp) {
+  if (!timestamp) return 'Never edited';
+  const diff = Math.floor((Date.now() - timestamp) / 1000); // seconds ago
 
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}hr ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
 
+export default function Note({title, cardTitle, body, lastEdited, onChange}) {
+
+    const [goalCompletion, setGoalCompletion] = useState(0)
     return (
         <div className={styles.content}>
                 <header className={styles.headerRow}>
@@ -19,7 +29,7 @@ export default function Note({title, cardTitle, body, onChange}) {
                     <h2 className={styles.heading}>{title}</h2>
                     <div className={styles.subhead}>
                       <img src={iconClock} alt="" className={styles.subheadIcon} />
-                      <span className={styles.subheadText}>Last edited: 2hr 31min ago</span>
+                      <span className={styles.subheadText}>Last edited: {timeAgo(lastEdited)}</span>
                     </div>
                   </div>
         
@@ -27,10 +37,10 @@ export default function Note({title, cardTitle, body, onChange}) {
                     <div>
                       <p className={styles.progressLabel}>Goal Progress</p>
                       <div className={styles.progressTrack}>
-                        <div className={styles.progressFill} style={{ width: '50%' }} />
+                        <div className={styles.progressFill} style={{ width: `${goalCompletion}%` }} />
                       </div>
                     </div>
-                    <span className={styles.progressPercent}>50%</span>
+                    <span className={styles.progressPercent} style={{display: 'flex', alignItems: 'center'}}><input style={{width:60}} value={goalCompletion} type='number' max={100} min={0} defaultValue={0} onChange={(e) => setGoalCompletion(e.target.value)}/>%</span>
                   </div>
                 </header>
         

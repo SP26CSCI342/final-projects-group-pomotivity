@@ -14,6 +14,10 @@
   flex-direction: column;
   gap: 5px;
   border-right: 1px solid var(--color-border-subtle);
+  overflow-x: scroll;
+  min-width: auto;
+  resize: horizontal;
+  min-width: 248px;
 }
 
 .fileItem {
@@ -33,7 +37,25 @@
   border: none;
   text-align: left;
   width: 100%;
+  justify-content: space-between;
   transition: background-color 0.15s;
+}
+
+.fileContainer .hoverButton {
+  display: none;
+  transition: background-color 0.15s;
+}
+
+.fileContainer:hover .hoverButton {
+  display: flex;
+  align-items: right;
+  gap: 8px;
+  padding: 3px;
+  
+}
+
+.fileContainer .hoverButton:hover{
+  background-color: rgba(0, 255, 102, 0.3);
 }
 
 .fileItem:hover {
@@ -134,6 +156,8 @@
   height: 100%;
   background-color: #84da87;
   border-radius: var(--radius-pill);
+  transition: all 0.5s;
+
 }
 
 .progressPercent {

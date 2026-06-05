@@ -17,12 +17,22 @@ const iconFor = {
 };
 
 
-export default function File ({name, dir, setCurrentFIle}){
+export default function File ({name, dir, currentFile, setCurrentFile, parentRemoveFile}){
+
     const note = <Note title={name}></Note>
     return(
-        <button draggable="true" onClick={() => setCurrentFIle(name)} type="button" className={`${styles.fileItem}`}>
-                <img src={iconFor['file']} alt="" className={styles.fileIcon} />
-                <span>{name}</span>
-        </button>
+        <span className={`${styles.fileContainer}`} style={{display:"flex", gap:10}}>
+            <span style={{ display: "flex", alignItems: 'center', gap: 8}}>
+                <button draggable="true" onClick={() => setCurrentFile(name)} type="button" className={`${styles.fileItem}`}>
+                        
+                    <img src={iconFor['file']} alt="" className={styles.fileIcon} />
+                    <span>{name}</span>
+                        
+                </button>
+            </span>
+            <span style={{ alignItems: "center", display: "flex"}}>
+                <button className={`${styles.hoverButton}`} onClick={() => parentRemoveFile(name)}>X</button>
+            </span>
+        </span>
     )
 }

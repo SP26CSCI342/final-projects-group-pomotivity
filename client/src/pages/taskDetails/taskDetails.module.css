@@ -148,6 +148,31 @@
   display: block;
 }
 
+.checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-bg);
+  border: 2px solid #899486;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.checkbox:hover {
+  border-color: var(--color-accent-green);
+}
+
+.checkboxIcon {
+  width: 10.867px;
+  height: 8.017px;
+  display: block;
+}
+
 /* Reading practice */
 
 .japaneseText {

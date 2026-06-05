@@ -1,30 +1,9 @@
 import editIcon from '../../assets/icon-edit.svg';
 import styles from './taskDetails.module.css';
 
-function SmallTaskCard({ title, progress, timeSpent }) {
-  const progressPercentage = progress || 0;
+import Task from '../../components/tasks/Task';
 
-  return (
-    <div className={styles.smallCard}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>{title}</h3>
-        <button className={styles.iconBtn} type="button">
-          <img src={editIcon} alt="Edit" />
-        </button>
-      </div>
-      <div className={styles.progressSection}>
-        <div className={styles.progressBar}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-        <span className={styles.percentage}>{progressPercentage}%</span>
-      </div>
-      <p className={styles.timeSpent}>{timeSpent || 'Time Spent: 0h0m'}</p>
-    </div>
-  );
-}
+
 
 function LargeTaskCard({ title, progress, timeSpent, tasks }) {
   const progressPercentage = progress || 0;
@@ -123,7 +102,7 @@ export default function TaskDetails() {
         {/* Small task cards */}
         {smallTasks.map((task) => (
           <div key={task.id} className={styles.gridItemSmall}>
-            <SmallTaskCard
+            <Task
               title={task.title}
               progress={task.progress}
               timeSpent={task.timeSpent}

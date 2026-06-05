@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
 
-        <Route element={<ProtectedRoute/>}>
+        {/*<Route element={<ProtectedRoute/>}>*/}
           {/* App pages share the sidebar layout */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
@@ -33,7 +33,7 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/task/:id" element={<TaskDetails />} />
           </Route>
-        </Route>
+       {/* </Route> */}
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
