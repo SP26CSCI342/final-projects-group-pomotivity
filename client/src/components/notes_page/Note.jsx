@@ -10,18 +10,18 @@ import File from './File';
 import { useEffect, useState } from 'react';
 
 function timeAgo(timestamp) {
-  if (!timestamp) return 'Never edited';
-  const diff = Math.floor((Date.now() - timestamp) / 1000); // seconds ago
-
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}min ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}hr ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  return "test"
 }
 
-export default function Note({title, cardTitle, body, lastEdited, onChange}) {
+export default function Note({title, cardTitle, body, timestamp, onChange, id}) {
 
     const [goalCompletion, setGoalCompletion] = useState(0)
+
+    //TODO - Make a function that saves note content to the database
+    const pushChanges = () => {
+      //Code goes here
+    }
+
     return (
         <div className={styles.content}>
                 <header className={styles.headerRow}>
@@ -29,7 +29,7 @@ export default function Note({title, cardTitle, body, lastEdited, onChange}) {
                     <h2 className={styles.heading}>{title}</h2>
                     <div className={styles.subhead}>
                       <img src={iconClock} alt="" className={styles.subheadIcon} />
-                      <span className={styles.subheadText}>Last edited: {timeAgo(lastEdited)}</span>
+                      <span className={styles.subheadText}>Last edited: {timeAgo(timestamp)}</span>
                     </div>
                   </div>
         
@@ -47,12 +47,13 @@ export default function Note({title, cardTitle, body, lastEdited, onChange}) {
                 <article className={styles.card}>
                   <header className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>
-                        <input placeholder='Insert Title Here' value={cardTitle} onChange={(e) => onChange(title, 'cardTitle', e.target.value)}/></h3>
+                        <input placeholder='Insert Title Here' value={cardTitle} onChange={(e) => onChange(title, 'caardTitle', e.target.value)}/></h3>
                   </header>
                   <p className={styles.japaneseText}>
                     <input placeholder='Insert Body Here' value={body} onChange={(e) => onChange(title, 'body', e.target.value)}/>
                   </p>
                 </article>
+        <button>Save</button>
               </div>
     )
 }

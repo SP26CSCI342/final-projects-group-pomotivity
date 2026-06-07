@@ -17,94 +17,194 @@ const iconFor = {
   'file-plus': iconFilePlus,
 };
 
+function findFile(id, tree){
+  if(tree){
+    return tree.map(item => (
+      item.id == id ?
+      item : findFile(id,item.children)
+    ))
+  }
+}
+function removeFromTree(id, tree) {
 
-function addToTree(nodes, path, newNode) {
-  if (path.length === 0) return [...nodes, newNode];
-  return nodes.map(node =>
-    node.label === path[0]
-      ? { ...node, children: addToTree(node.children ?? [], path.slice(1), newNode) }
-      : node
-  );
+  return tree.filter(item =>
+    item.id != id).map(item => (
+      {...item, children: removeFromTree(id,item.children ? item.children : [])}
+    )
+  )
 }
 
-function removeFromTree(nodes, path, label) {
-  if (path.length === 0) return nodes.filter(n => n.label !== label);
-  return nodes.map(node =>
-    node.label === path[0]
-      ? { ...node, children: removeFromTree(node.children ?? [], path.slice(1), label) }
-      : node
-  );
+function addToTree(id, tree, file){ 
+
+  return tree.map(item => {
+    return item.id == id ?
+     {...item, children: [...item.children, file]} : {...item, children: addToTree(id,item.children ? item.children : [],file)}
+  })  
+
 }
 
 export default function Notes() {
 
+  const [fileTree, setFileTree] = useState([])
+  const [notes, setNotes] = useState([])
+  const [loaded, setLoaded] = useState(false)
+
+    //Initializes the tree. Creates it if the user doesn't have an entry in the database
+   useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      fetch('/api/files', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`}
+      })
+      .then(() =>
+      fetch('/api/files', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.files.tree)) {
+            setFileTree(data.files.tree);
+            setLoaded(true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading files:', error);
+        })
+      );
+    }, []);
+
+  //NOTES
+  const [noteContent, setNoteContent] = useState({})
+
+  //Initializes the ntoes collection. Creates it if the user doesn't have an entry in the database
+   useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      fetch('/api/note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`}
+      })
+      .then(() =>
+      fetch('/api/note', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.foundNotes.notes)) {
+            setFileTree(data.foundNotes.notes);
+            setLoaded(true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading notes:', error);
+        })
+      );
+    }, []);
+
+  
+
+  //Sends the updated file tree to the database whenever new files are created
+  useEffect(() => {
+    if (loaded){
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      fetch('/api/note', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
+        body: JSON.stringify(notes)
+      });
+    }
+  }, [notes])
+  
+
+  //Sends the updated file tree to the database whenever new files are created
+  useEffect(() => {
+    if (loaded){
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      fetch('/api/files', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
+        body: JSON.stringify(fileTree)
+      });
+    }
+  }, [fileTree])
+
   {/* handles file creation */}
   const [isAddingFile, setIsAddingFile] = useState(false);
   const [isAddingFolder, setIsAddingFolder] = useState(false);
-  const [newItemLabel, setNewItemLabel] = useState('');
-  const addInputRef = useRef(null);
+  const [fileName, setFileName] = useState('');
 
-  useEffect(() => {
-  if (isAddingFile || isAddingFolder) addInputRef.current?.focus();
-}, [isAddingFile, isAddingFolder]);
-
-  function commitItem(isDir) {
-    const label = newItemLabel.trim();
-    if (label) {
-      addFile(isDir ? 'folder-plus' : 'file', label, isDir);
+  function confirm(isDir) {
+    if (fileName.trim()) {
+      addFile(null, {id: crypto.randomUUID(), label: fileName, dir: isDir, children: isDir ? [] : null});
     }
-    setNewItemLabel('');
+    setFileName('');
     setIsAddingFile(false);
     setIsAddingFolder(false);
   }
 
 
   const [currentFile, setCurrentFile] = useState(null);
-
-  const [fileTree, setFileTree] = useState(() => {
-    const savedFiles = localStorage.getItem('files');
-    return savedFiles ? JSON.parse(savedFiles) : [];
-  }
-  )
-
-  const addFile = (type, label, dir, parentPath = []) => {
-    setFileTree(prev => {
-      const updated = addToTree(prev, parentPath, { type, label, dir, children: [] });
-      localStorage.setItem('files', JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  const removeFile = (label, parentPath = []) => {
-    setFileTree(prev => {
-      const updated = removeFromTree(prev, parentPath, label);
-      localStorage.setItem('files', JSON.stringify(updated));
-      return updated;
-    });
-    if (currentFile === label) setCurrentFile(null);
-  };
-
-  const [noteContent, setNoteContents] = useState(() => {
-    const saved = localStorage.getItem('notes');
-    return saved ? JSON.parse(saved) : {};
-  })
-
-  const handleNoteChange = (filename, field, value) => {
-    setNoteContents(prev => {
-      const updated = {
-        ...prev,
-        [filename]: { ...prev[filename], [field]: value, lastEdited: Date.now()}
-      };
-      localStorage.setItem('notes', JSON.stringify(updated));
-      return updated;
-    });
-  };
+  const [realCurrentFile, setRealCurrentFile] = useState(null)
 
   useEffect(() => {
-    fileTree.map((item, i) => {
-      console.log(`${i}: ${item}`)
-    })
-  }, [fileTree])
+    setRealCurrentFile(findFile(currentFile, fileTree))
+  }, [currentFile])
+
+  const addFile = (id, file) => {
+    setFileTree(prev => {
+      if(!file.isDir){
+        createNote(file.id,fileName)
+      }
+      if (id == null) return [...prev, file]
+      const newTree = addToTree(id,fileTree, file);
+      return newTree;
+    });
+  };
+
+  const removeFile = (id) => {
+    setFileTree(prev => {
+      const newTree = removeFromTree(id,prev);
+      return newTree;
+    });
+  };
+
+    const createNote = (id, name) => {
+      setNotes([...notes, {id: id, name: name, title: "", body: "", progress: 0, timestamp: Date.now()}])
+    };
+
+    const removeNote = (id) => {
+      setNotes(notes.filter(note => note.id != id))
+    };
+
+    const displayNote = (id) => {
+      notes.map(note => {
+          if(note.id == id){
+            setNoteContent(note)
+          }
+        }
+      )
+    }
+
+    const changeNote = (id, content) => {
+      notes.map(note => {
+          if(note.id == id){
+            note = {...note, cardTitle: content.cardTitle, body: content.body, timestamp: content.timestamp, }
+          }
+      })
+    }
 
   return (
     <section className={styles.notes}>
@@ -115,35 +215,45 @@ export default function Notes() {
           fileTree[i].dir ?
           <Folder
             key={i}
-            node={item}
-            path={[item.label]}         // track location in tree
+            id={item.id}
+            label={item.label}
             currentFile={currentFile}
             setCurrentFile={setCurrentFile}
             onAdd={addFile}
             onRemove={removeFile}
+            children={item.children}
+            removeNote={removeNote}
+            displayNote={displayNote}
           />
           :
-          <File key={i} name={item.label} dir={item.dir} currentFile={currentFile} setCurrentFile={setCurrentFile} parentRemoveFile={removeFile}/>
+          <File 
+            key={i} 
+            id={item.id} 
+            label={item.label} 
+            dir={item.dir} 
+            currentFile={currentFile} 
+            setCurrentFile={setCurrentFile} 
+            onRemove={removeFile}
+            children={null}
+            removeNote={removeNote}
+            displayNote={displayNote}
+          />
 
         ))}
         {isAddingFile && (
-          <form onSubmit={e => { e.preventDefault(); commitItem(false); }}>
+          <form onSubmit={e => { e.preventDefault(); confirm(false); }}>
             <input
-              ref={addInputRef}
-              value={newItemLabel}
-              onChange={e => setNewItemLabel(e.target.value)}
-              onBlur={() => commitItem(false)}
+              value={fileName}
+              onChange={e => setFileName(e.target.value)}
               placeholder="Note name..."
             />
           </form>
         )}
         {isAddingFolder && (
-          <form onSubmit={e => { e.preventDefault(); commitItem(true); }}>
+          <form onSubmit={e => { e.preventDefault(); confirm(true); }}>
             <input
-              ref={addInputRef}
-              value={newItemLabel}
-              onChange={e => setNewItemLabel(e.target.value)}
-              onBlur={() => commitItem(true)}
+              value={fileName}
+              onChange={e => setFileName(e.target.value)}
               placeholder="Folder name..."
             />
           </form>
@@ -157,16 +267,20 @@ export default function Notes() {
         )}
       </div>
 
-      {currentFile && (
+      <div>
+        {currentFile ?
         <Note 
-          key={currentFile}
-          title={currentFile}
-          cardTitle={noteContent[currentFile]?.cardTitle ?? ""}
-          body={noteContent[currentFile]?.body ?? ""}
-          lastEdited={noteContent[currentFile]?.lastEdited ?? null}
-          onChange={handleNoteChange}
-      />
-      )}
+            key={realCurrentFile}
+            title={realCurrentFile.label}
+            cardTitle={noteContent[currentFile]?.cardTitle ?? ""}
+            body={noteContent[currentFile]?.body ?? ""}
+            lastEdited={noteContent[currentFile]?.lastEdited ?? null}
+            onChange={handleNoteChange}
+            id={realCurrentFile.id}
+        />
+        :
+        null}
+      </div>
     </section>
-  );
+);
 }

@@ -8,7 +8,8 @@ import iconPlusThin from '../../assets/icon-plus-thin.svg';
 import { useState, useEffect } from "react";
 
 
-function ProgressCheck() {
+
+function ProgressCheck(goal) {
     return (
         <button
           type="button"
@@ -25,8 +26,11 @@ function ProgressCheck() {
 }
 
 
-export default function Task({ title, progress, timeSpent }) {
+export default function Task({ title, progress, timeSpent}) {
   const progressPercentage = progress || 0;
+
+  const [goals, setGoals] = useState([])
+  const [isEditing, setIsEditing] = useState(false)
 
   return (
     <div className={styles.smallCard}>
@@ -44,7 +48,7 @@ export default function Task({ title, progress, timeSpent }) {
           />
         </div>
         <span className={styles.percentage}>{progressPercentage}%</span>
-        <ProgressCheck/>
+        {/*<ProgressCheck/>*/}
       </div>
       <p className={styles.timeSpent}>{timeSpent || 'Time Spent: 0h0m'}</p>
     </div>

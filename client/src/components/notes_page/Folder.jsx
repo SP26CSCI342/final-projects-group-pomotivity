@@ -14,41 +14,29 @@ const iconFor = {
   'file-plus': iconFilePlus,
 };
 
-export default function Folder({ node, path, currentFile, setCurrentFile, onAdd, onRemove }) {
-  const { label, children = [] } = node;
+export default function Folder({ id, label, currentFile, setCurrentFile, onAdd, onRemove, children, removeNote, displayNote}) {
 
-  // Collapse / expand
   const [showSub, setShowSub] = useState(false);
   const icon = showSub ? 'folder-minus' : 'folder-plus';
 
-  // Inline input for new file / folder
   const [isAddingFile, setIsAddingFile] = useState(false);
   const [isAddingFolder, setIsAddingFolder] = useState(false);
-  const [newItemLabel, setNewItemLabel] = useState('');
-  const addInputRef = useRef(null);
+  const [newName, setNewName] = useState('');
 
-  useEffect(() => {
-    if (isAddingFile || isAddingFolder) addInputRef.current?.focus();
-  }, [isAddingFile, isAddingFolder]);
 
-  function commitItem(isDir) {
-    const trimmed = newItemLabel.trim();
-    if (trimmed) {
-      onAdd(isDir ? 'folder-plus' : 'file', trimmed, isDir, path);
+  function confirm(isDir) {
+    if (newName.trim()) {
+      onAdd(id, {id: crypto.randomUUID(), label: newName, dir: isDir, children: isDir ? [] : null});
     }
-    setNewItemLabel('');
+    setNewName('');
     setIsAddingFile(false);
     setIsAddingFolder(false);
   }
 
-  const removeChild = (childLabel) => onRemove(childLabel, path);
-
   return (
     <>
-      {/* Folder row */}
       <span className={styles.fileContainer} style={{ display: 'flex', gap: 10 }}>
 
-        {/* Folder toggle button */}
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             onClick={() => setShowSub(v => !v)}
@@ -60,7 +48,6 @@ export default function Folder({ node, path, currentFile, setCurrentFile, onAdd,
           </button>
         </span>
 
-        {/* Add folder / add file / delete self */}
         <span style={{ alignItems: 'center', display: 'flex', gap: 2 }}>
           <button className={styles.hoverButton} onClick={() => setIsAddingFolder(true)}>
             <img src={iconFor['folder-plus']} alt="" className={styles.fileIcon} />
@@ -68,62 +55,62 @@ export default function Folder({ node, path, currentFile, setCurrentFile, onAdd,
           <button className={styles.hoverButton} onClick={() => setIsAddingFile(true)}>
             <img src={iconFor['file-plus']} alt="" className={styles.fileIcon} />
           </button>
-          <button className={styles.hoverButton} onClick={() => onRemove(label, path.slice(0, -1))}>
+          <button className={styles.hoverButton} onClick={() => onRemove(id)}>
             X
           </button>
         </span>
 
       </span>
 
-      {/* Inline input — new file */}
       {isAddingFile && (
-        <form onSubmit={e => { e.preventDefault(); commitItem(false); }}>
+        <form onSubmit={e => { e.preventDefault(); confirm(false); }}>
           <input
-            ref={addInputRef}
-            value={newItemLabel}
-            onChange={e => setNewItemLabel(e.target.value)}
-            onBlur={() => commitItem(false)}
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
             placeholder="Note name..."
           />
         </form>
       )}
 
-      {/* Inline input — new folder */}
       {isAddingFolder && (
-        <form onSubmit={e => { e.preventDefault(); commitItem(true); }}>
+        <form onSubmit={e => { e.preventDefault(); confirm(true); }}>
           <input
-            ref={addInputRef}
-            value={newItemLabel}
-            onChange={e => setNewItemLabel(e.target.value)}
-            onBlur={() => commitItem(true)}
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
             placeholder="Folder name..."
           />
         </form>
       )}
 
-      {/* Children — only rendered when expanded */}
       {showSub && (
         <div style={{ paddingLeft: 16 }}>
           {children.map((child, i) =>
             child.dir ? (
               <Folder
                 key={i}
-                node={child}
-                path={[...path, child.label]}
+                id={child.id}
+                label={child.label}
                 currentFile={currentFile}
                 setCurrentFile={setCurrentFile}
                 onAdd={onAdd}
                 onRemove={onRemove}
+                children={child.children}
+                removeNote={removeNote}
+                displayNote={displayNote}
               />
             ) : (
-              <File
-                key={i}
-                name={child.label}
-                dir={child.dir}
-                currentFile={currentFile}
-                setCurrentFile={setCurrentFile}
-                parentRemoveFile={removeChild}
-              />
+            <File 
+              key={i} 
+              id={child.id} 
+              label={child.label} 
+              dir={child.dir} 
+              currentFile={currentFile} 
+              setCurrentFile={setCurrentFile} 
+              onRemove={onRemove}
+              children={null}
+              removeNote={removeNote}
+              displayNote={displayNote}
+            />
             )
           )}
         </div>
