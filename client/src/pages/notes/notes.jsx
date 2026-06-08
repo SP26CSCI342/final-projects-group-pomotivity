@@ -78,8 +78,22 @@ export default function Notes() {
       );
     }, []);
 
+  //Sends the updated file tree to the database whenever new files are created
+  useEffect(() => {
+    if (loaded){
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      fetch('/api/files', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
+        body: JSON.stringify(fileTree)
+      });
+    }
+  }, [fileTree])
+
   //NOTES
-  const [noteContent, setNoteContent] = useState({})
+  const [noteContent, setNoteContent] = useState(null)
 
   //Initializes the ntoes collection. Creates it if the user doesn't have an entry in the database
    useEffect(() => {
@@ -100,7 +114,7 @@ export default function Notes() {
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data.foundNotes.notes)) {
-            setFileTree(data.foundNotes.notes);
+            setNotes(data.foundNotes.notes);
             setLoaded(true);
           }
         })
@@ -127,19 +141,7 @@ export default function Notes() {
   }, [notes])
   
 
-  //Sends the updated file tree to the database whenever new files are created
-  useEffect(() => {
-    if (loaded){
-      const token = localStorage.getItem('token');
-      if (!token) return;
 
-      fetch('/api/files', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
-        body: JSON.stringify(fileTree)
-      });
-    }
-  }, [fileTree])
 
   {/* handles file creation */}
   const [isAddingFile, setIsAddingFile] = useState(false);
@@ -166,7 +168,7 @@ export default function Notes() {
   const addFile = (id, file) => {
     setFileTree(prev => {
       if(!file.isDir){
-        createNote(file.id,fileName)
+        createNote(file.id,file.label)
       }
       if (id == null) return [...prev, file]
       const newTree = addToTree(id,fileTree, file);
@@ -193,17 +195,20 @@ export default function Notes() {
       notes.map(note => {
           if(note.id == id){
             setNoteContent(note)
+            return
           }
         }
       )
     }
 
     const changeNote = (id, content) => {
-      notes.map(note => {
-          if(note.id == id){
-            note = {...note, cardTitle: content.cardTitle, body: content.body, timestamp: content.timestamp, }
-          }
-      })
+      const newNotes = notes.map(note => (
+          note.id == id ?
+            {...note, title: content.cardTitle, body: content.body, timestamp: content.timestamp, progress: content.progress }
+          :
+          {...note}
+      ))
+      setNotes(newNotes)
     }
 
   return (
@@ -267,16 +272,17 @@ export default function Notes() {
         )}
       </div>
 
-      <div>
-        {currentFile ?
+      <div style={{overflow: 'auto', display: 'flex', flex: 1}}>
+        {noteContent ?
         <Note 
-            key={realCurrentFile}
-            title={realCurrentFile.label}
-            cardTitle={noteContent[currentFile]?.cardTitle ?? ""}
-            body={noteContent[currentFile]?.body ?? ""}
-            lastEdited={noteContent[currentFile]?.lastEdited ?? null}
-            onChange={handleNoteChange}
-            id={realCurrentFile.id}
+            key={noteContent.id}
+            title={noteContent.name}
+            cardTitle={noteContent.title}
+            body={noteContent.body}
+            timestamp={noteContent.timestamp}
+            onChange={changeNote}
+            id={noteContent.id}
+            progress={noteContent.progress}
         />
         :
         null}

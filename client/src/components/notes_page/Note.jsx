@@ -10,17 +10,46 @@ import File from './File';
 import { useEffect, useState } from 'react';
 
 function timeAgo(timestamp) {
-  return "test"
+
+  //Gets the time difference in seconds
+  const timeDiff = Math.floor((Date.now() - timestamp)/1000)
+  //Less than a minute ago
+  if (timeDiff < 60) {
+    return "less than a minute ago"
+  }
+  //1-59 minutes
+  else if(timeDiff >= 60 && timeDiff < 3600){
+    return `${Math.floor(timeDiff/60)} minute${Math.floor(timeDiff/60) < 2 ? '' : 's'} ago`
+  }
+  //1-23 hours
+  else if(timeDiff >= 3600 && timeDiff < 86400){
+    return `${Math.floor(timeDiff/3600)} hour${Math.floor(timeDiff/3600) < 2 ? '' : 's'} ago`
+  }
+  //Days
+  else if(timeDiff >= 86400){
+    return `${Math.floor(timeDiff/86400)} day${Math.floor(timeDiff/86400) < 2 ? '' : 's'} ago`
+  }
 }
 
-export default function Note({title, cardTitle, body, timestamp, onChange, id}) {
+export default function Note({title, cardTitle, body, timestamp, onChange, id, progress}) {
 
     const [goalCompletion, setGoalCompletion] = useState(0)
 
-    //TODO - Make a function that saves note content to the database
-    const pushChanges = () => {
-      //Code goes here
-    }
+    const[newTitle, setNewTitle] = useState(cardTitle)
+    const[newBody, setNewBody] = useState(body)
+    const[newProgess, setNewProgress] = useState(progress)
+    const [seconds, setSeconds] = useState(0)
+
+    //Changes the lastEdited value every minute
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setSeconds(prev => prev + 1)
+      }, 60000);
+
+      timeAgo(timestamp)
+      return () => clearInterval(interval)
+    }, [])
+
 
     return (
         <div className={styles.content}>
@@ -37,23 +66,23 @@ export default function Note({title, cardTitle, body, timestamp, onChange, id}) 
                     <div>
                       <p className={styles.progressLabel}>Goal Progress</p>
                       <div className={styles.progressTrack}>
-                        <div className={styles.progressFill} style={{ width: `${goalCompletion}%` }} />
+                        <div className={styles.progressFill} style={{ width: `${newProgess}%` }} />
                       </div>
                     </div>
-                    <span className={styles.progressPercent} style={{display: 'flex', alignItems: 'center'}}><input style={{width:60}} value={goalCompletion} type='number' max={100} min={0} defaultValue={0} onChange={(e) => setGoalCompletion(e.target.value)}/>%</span>
+                    <span className={styles.progressPercent} style={{display: 'flex', alignItems: 'center'}}><input style={{width:60}} value={newProgess} type='number' max={100} min={0} defaultValue={0} onChange={(e) => setNewProgress(e.target.value)}/>%</span>
                   </div>
                 </header>
         
                 <article className={styles.card}>
                   <header className={styles.cardHeader}>
-                    <h3 className={styles.cardTitle}>
-                        <input placeholder='Insert Title Here' value={cardTitle} onChange={(e) => onChange(title, 'caardTitle', e.target.value)}/></h3>
+                    <h3 className={styles.cardTitle} style={{width: '100%'}}>
+                        <textarea style={{fieldSizing: 'content', resize:'none', width: '100%', minWidth: '250x', height: 'auto'}} placeholder='Insert Title Here' value={newTitle} onChange={(e) => setNewTitle(e.target.value)}/></h3>
                   </header>
                   <p className={styles.japaneseText}>
-                    <input placeholder='Insert Body Here' value={body} onChange={(e) => onChange(title, 'body', e.target.value)}/>
+                    <textarea style={{fieldSizing: 'content', resize:'none', width: '100%', minWidth: '250x', height: 'auto'}} placeholder='Insert Body Here' value={newBody} onChange={(e) => setNewBody(e.target.value)}/>
                   </p>
                 </article>
-        <button>Save</button>
+        <button onClick={() => onChange(id, {cardTitle: newTitle, body: newBody, timestamp: Date.now(), progress: newProgess})}>Save</button>
               </div>
     )
 }
