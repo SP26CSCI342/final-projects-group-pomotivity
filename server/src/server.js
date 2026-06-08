@@ -244,6 +244,139 @@ app.post("/api/events", authenticate, async (req, res) => {
 });
 
 // ============================================================
+// DELETE /api/events/:id
+// remove an event owned by the authenticated user
+// ============================================================
+app.delete("/api/events/:id", authenticate, async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid event ID." });
+  }
+
+  try {
+    const event = await Event.findOneAndDelete({ _id: id, user: req.userId });
+    if (!event) {
+      return res.status(404).json({ error: "Event not found." });
+    }
+
+    return res.status(200).json({ message: "Event deleted." });
+  } catch (error) {
+    console.error("Delete event error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// GET /api/files
+// return the file tree
+// ============================================================
+app.get("/api/files", authenticate, async (req, res) => {
+  try {
+    const files = await Files.findOne({ user: req.userId });
+    return res.status(200).json({ files });
+  } catch (error) {
+    console.error("Get events error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// POST /api/files
+// add a new file tree (only runs once for every user)
+// ============================================================
+app.post("/api/files", authenticate, async (req, res) => {
+  const { tree } = req.body || {};
+
+  try {
+    let files = await Files.findOne({ user: req.userId });
+    if(!files){
+      files = await Files.create({
+        user: req.userId,
+        tree: [],
+      });
+    }
+    return res.status(201).json({ files });
+  } catch (error) {
+    console.error("Create files error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// POST /api/files
+// update's the user's files in the database when they are changed
+// ============================================================
+app.patch("/api/files", authenticate, async (req, res) => {
+  const files = req.body || {};
+  try {
+    const newTree = await Files.findOneAndUpdate(
+      {user: req.userId},
+      {$set: {tree: files}},
+      {returnDocument: 'after'});
+    return res.status(201).json({ newTree });
+  } catch (error) {
+    console.error("Error updating files:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+  }
+);
+
+// ============================================================
+// GET /api/note
+// return the note collection
+// ============================================================
+app.get("/api/note", authenticate, async (req, res) => {
+  try {
+    const foundNotes = await Note.findOne({ user: req.userId });
+    return res.status(200).json({ foundNotes });
+  } catch (error) {
+    console.error("Get events error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// POST /api/note
+// add a new note colllection (only runs once for every user)
+// ============================================================
+app.post("/api/note", authenticate, async (req, res) => {
+  const { collection } = req.body || {};
+
+  try {
+    let foundNotes = await Note.findOne({ user: req.userId });
+    if(!foundNotes){
+      foundNotes = await Note.create({
+        user: req.userId,
+        notes: [],
+      });
+    }
+    return res.status(201).json({ foundNotes });
+  } catch (error) {
+    console.error("Create files error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// PATCH /api/note
+// updates notes in databasewhen changed
+// ============================================================
+app.patch("/api/note", authenticate, async (req, res) => {
+  const notes = req.body || {};
+  try {
+  const newNotes = await Note.findOneAndUpdate(
+    {user: req.userId},
+    {$set: {notes: notes}},
+    {returnDocument: 'after'});
+  return res.status(201).json({ newNotes });
+  } catch (error) {
+    console.error("Error updating notes:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+
+});
+
+// ============================================================
 // GET /api/files
 // return the file tree
 // ============================================================

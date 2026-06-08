@@ -209,6 +209,7 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
+  justify-content: space-between;
 }
 
 .eventCardMuted {
@@ -249,6 +250,32 @@
   font-size: 14px;
   line-height: 20px;
   color: var(--color-text-muted);
+}
+
+.deleteButton {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.deleteButton:hover {
+  color: #fff;
+  background-color: #d13745;
+  border-color: #d13745;
+}
+
+.deleteButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(209, 55, 69, 0.25);
 }
 
 .quickAddWrap {

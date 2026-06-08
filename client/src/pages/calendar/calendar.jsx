@@ -142,6 +142,37 @@ export default function Calendar() {
     }
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token available.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Failed to delete event:', data.error || data);
+        return;
+      }
+
+      setEvents((currentEvents) =>
+        currentEvents.filter(
+          (event) => event.id !== eventId && event._id !== eventId,
+        ),
+      );
+    } catch (error) {
+      console.error('Error deleting calendar event:', error);
+    }
+  };
+
   return (
     <section className={styles.calendar}>
       <p className={styles.date}>{currentDateLabel}</p>
@@ -258,6 +289,14 @@ export default function Calendar() {
                     <span className={styles.eventTitle}>{event.title}</span>
                     <span className={styles.eventTime}>{event.time || 'All day'}</span>
                   </div>
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    aria-label="Delete event"
+                    onClick={() => handleDeleteEvent(event.id || event._id)}
+                  >
+                    Delete
+                  </button>
                 </div>
               ))
             ) : (
