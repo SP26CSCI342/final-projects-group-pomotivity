@@ -49,6 +49,7 @@ function Login() {
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
       toast.success(data.message || `Welcome back, ${data.user.profiles.firstName}!`);
+      console.log("useNavigate THE FUNCTION HERE:", useNavigate)
       navigate("/");
     } catch (err) {
       console.error(err);
