@@ -173,15 +173,17 @@ export default function Profile() {
 
   async function saveProfile(e) {
     e.preventDefault();
+    setProfileError('');
+
     const firstName = editFirstName.trim();
     const lastName = editLastName.trim();
 
-    if (firstName.length < 3) {
+    if (!firstName || firstName.length < 3) {
       setProfileError('First name must be at least 3 characters.');
       return;
     }
 
-    if (lastName.length < 3) {
+    if (!lastName || lastName.length < 3) {
       setProfileError('Last name must be at least 3 characters.');
       return;
     }
@@ -191,6 +193,14 @@ export default function Profile() {
       setProfileError('You must be logged in to update your profile.');
       return;
     }
+
+    const prevUser = JSON.parse(JSON.stringify(user));
+    const optimisticUser = {
+      ...user,
+      profiles: { ...profile, firstName, lastName },
+    };
+
+    setUser(optimisticUser);
 
     try {
       setLoadingPref(true);
@@ -202,21 +212,23 @@ export default function Profile() {
         },
         body: JSON.stringify({ firstName, lastName }),
       });
+
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || 'Could not update profile.');
       }
 
-      const stored = JSON.parse(localStorage.getItem('user') || localStorage.getItem('User') || '{}');
-      stored.profiles = data.profiles;
+      const storedJson = localStorage.getItem('user') || localStorage.getItem('User') || '{}';
+      const stored = JSON.parse(storedJson);
+      stored.profiles = data.profiles || { ...profile, firstName, lastName };
       localStorage.setItem('user', JSON.stringify(stored));
       setUser(stored);
       setIsEditing(false);
-      setProfileError('');
-      toast.success('Profile updated');
+      toast.success('Profile updated successfully');
     } catch (err) {
       console.error('Profile update failed', err);
       setProfileError(err.message || 'Could not update profile.');
+      setUser(prevUser);
       toast.error(err.message || 'Could not update profile');
     } finally {
       setLoadingPref(false);

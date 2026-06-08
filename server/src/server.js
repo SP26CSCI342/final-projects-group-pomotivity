@@ -435,6 +435,43 @@ app.post("/api/logout", (req, res) => {
 });
 
 // ============================================================
+// PATCH /api/profile
+// Update the authenticated user's profile information
+// ============================================================
+app.patch("/api/profile", authenticate, async (req, res) => {
+  const { firstName, lastName } = req.body || {};
+
+  if (!firstName || firstName.trim().length < 3) {
+    return res.status(400).json({ error: "First name must be at least 3 characters." });
+  }
+
+  if (!lastName || lastName.trim().length < 3) {
+    return res.status(400).json({ error: "Last name must be at least 3 characters." });
+  }
+
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const profile = await Profile.findById(user.profile);
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found." });
+    }
+
+    profile.firstName = firstName.trim();
+    profile.lastName = lastName.trim();
+    await profile.save();
+
+    return res.status(200).json({ message: "Profile updated.", profiles: profile });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
 // PATCH /api/profile/preferences
 // Update the authenticated user's profile preferences
 // Requires `Authorization: Bearer <token>` header
