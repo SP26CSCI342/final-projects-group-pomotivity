@@ -28,8 +28,15 @@ export default function Calendar() {
   const [newTitle, setNewTitle] = useState('');
   const [newDate, setNewDate] = useState(todayIso);
   const [newVariant, setNewVariant] = useState('green');
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDate, setEditDate] = useState(todayIso);
+  const [editVariant, setEditVariant] = useState('green');
+  const [editTime, setEditTime] = useState('All day');
   const [visibleMonth, setVisibleMonth] = useState(currentMonth);
   const [visibleYear, setVisibleYear] = useState(currentYear);
+
+  const getEventId = (event) => event.id || event._id;
 
   const visibleDate = new Date(visibleYear, visibleMonth, 1);
   const monthLabel = visibleDate.toLocaleString('default', { month: 'long' });
@@ -173,6 +180,70 @@ export default function Calendar() {
     }
   };
 
+  const handleStartEditEvent = (event) => {
+    const eventId = getEventId(event);
+    setEditingEventId(eventId);
+    setEditTitle(event.title || '');
+    setEditDate(event.date || selectedDate);
+    setEditVariant(event.variant || 'green');
+    setEditTime(event.time || 'All day');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingEventId(null);
+  };
+
+  const handleUpdateEvent = async (eventId) => {
+    if (!editTitle.trim()) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token available.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: editTitle.trim(),
+          date: editDate,
+          variant: editVariant,
+          time: editTime,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error('Failed to update event:', data.error || data);
+        return;
+      }
+
+      setEvents((currentEvents) =>
+        currentEvents.map((event) => {
+          const id = getEventId(event);
+          if (id !== eventId) return event;
+          return {
+            ...event,
+            title: data.event.title,
+            date: data.event.date,
+            variant: data.event.variant,
+            time: data.event.time,
+          };
+        }),
+      );
+      setSelectedDate(editDate);
+      setEditingEventId(null);
+    } catch (error) {
+      console.error('Error updating calendar event:', error);
+    }
+  };
+
+
   return (
     <section className={styles.calendar}>
       <p className={styles.date}>{currentDateLabel}</p>
@@ -278,27 +349,88 @@ export default function Calendar() {
         <div className={styles.agendaRow}>
           <div className={styles.agendaEvents}>
             {selectedEvents.length > 0 ? (
-              selectedEvents.map((event, index) => (
-                <div key={index} className={styles.eventCard}>
-                  <span
-                    className={`${styles.eventBar} ${
-                      event.variant === 'red' ? styles.eventBarRed : styles.eventBarGreen
-                    }`}
-                  />
-                  <div className={styles.eventMeta}>
-                    <span className={styles.eventTitle}>{event.title}</span>
-                    <span className={styles.eventTime}>{event.time || 'All day'}</span>
+              selectedEvents.map((event, index) => {
+                const eventId = getEventId(event);
+                return (
+                  <div key={eventId || index} className={styles.eventCard}>
+                    <span
+                      className={`${styles.eventBar} ${
+                        event.variant === 'red' ? styles.eventBarRed : styles.eventBarGreen
+                      }`}
+                    />
+                    {editingEventId === eventId ? (
+                      <div className={styles.eventMeta}>
+                        <input
+                          type="text"
+                          className={styles.editInput}
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                        />
+                        <input
+                          type="date"
+                          className={styles.editInput}
+                          value={editDate}
+                          onChange={(e) => setEditDate(e.target.value)}
+                        />
+                        <select
+                          className={styles.editInput}
+                          value={editVariant}
+                          onChange={(e) => setEditVariant(e.target.value)}
+                        >
+                          <option value="green">Green</option>
+                          <option value="red">Red</option>
+                        </select>
+                        <input
+                          type="text"
+                          className={styles.editInput}
+                          value={editTime}
+                          onChange={(e) => setEditTime(e.target.value)}
+                        />
+                        <div className={styles.eventActionRow}>
+                          <button
+                            type="button"
+                            className={styles.saveButton}
+                            onClick={() => handleUpdateEvent(eventId)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.cancelButton}
+                            onClick={handleCancelEdit}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className={styles.eventMeta}>
+                          <span className={styles.eventTitle}>{event.title}</span>
+                          <span className={styles.eventTime}>{event.time || 'All day'}</span>
+                        </div>
+                        <div className={styles.eventActionGroup}>
+                          <button
+                            type="button"
+                            className={styles.editButton}
+                            onClick={() => handleStartEditEvent(event)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.deleteButton}
+                            aria-label="Delete event"
+                            onClick={() => handleDeleteEvent(eventId)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    className={styles.deleteButton}
-                    aria-label="Delete event"
-                    onClick={() => handleDeleteEvent(event.id || event._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className={styles.eventCardMuted}>
                 <div className={styles.eventMeta}>

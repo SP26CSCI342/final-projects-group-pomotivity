@@ -278,6 +278,56 @@
   box-shadow: 0 0 0 3px rgba(209, 55, 69, 0.25);
 }
 
+.eventActionGroup,
+.eventActionRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.editButton,
+.saveButton,
+.cancelButton {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+}
+
+.editButton:hover,
+.saveButton:hover {
+  color: #fff;
+  background-color: #4a8f4a;
+  border-color: #4a8f4a;
+}
+
+.cancelButton:hover {
+  color: #fff;
+  background-color: #6b7280;
+  border-color: #6b7280;
+}
+
+.editInput {
+  width: 100%;
+  margin-top: 8px;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid #40493e;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.editInput:focus {
+  border-color: var(--color-accent-green);
+  outline: none;
+}
+
 .quickAddWrap {
   flex: 1 1 0;
   min-width: 0;
