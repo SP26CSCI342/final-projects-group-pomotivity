@@ -62,3 +62,4 @@ Isaac R:
 Leyton:
 
 Jade:
+  Working on the backend and the database for this project taught me a lot about using API and utilizing hooks in my react project and it helped me understand how data flows from the front end and the backend. This was my first project using MongoDB and I learned a lot about using a non-relational database and the structure took some getting used to. As for the structure of the project, I learned that it was difficult for the team to clearly claim responsibilities and ownership of tasks without strong leadership.
