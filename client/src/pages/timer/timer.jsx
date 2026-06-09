@@ -7,6 +7,7 @@ import iconChevronDown from '../../assets/icon-chevron-down.svg';
 import iconCheckDone from '../../assets/icon-check-done.svg';
 import iconPlusThin from '../../assets/icon-plus-thin.svg';
 import styles from './timer.module.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -25,6 +26,10 @@ function arcPath(progress) {
 }
 
 export default function Timer() {
+
+  const { state } = useLocation()
+  const { currentTask, projectId } = state ? state : {}
+
   const [sessionMins, setSessionMins] = useState(25);
   const [breakMins, setBreakMins] = useState(5);
   const [phase, setPhase] = useState('work');
@@ -36,6 +41,73 @@ export default function Timer() {
   const [newGoalText, setNewGoalText] = useState('');
   const addInputRef = useRef(null);
   const nextGoalId = useRef(0);
+
+
+  const [taskList, setTaskList] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const [checkResult, setCheckResult] = useState([null])
+  const navigate = useNavigate()
+  
+
+
+  const completeTask = () => {
+    setTaskList(taskList.map(task => (
+      currentTask == task.id ?
+      {...task, completed: true}
+      :
+      task
+    )))
+    navigate("/task/1")
+  }
+  //Initializes the list of tasks
+   useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+
+      fetch('/api/task', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.foundTask.tasks)) {
+            setTaskList(data.foundTask.tasks);
+            setLoaded(true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading tasks:', error);
+        });
+    }, []);
+
+      //Sends the updated file tree to the database whenever new files are created
+    useEffect(() => {
+      if (loaded){
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        fetch('/api/task', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
+          body: JSON.stringify(taskList)
+        });
+      }
+    }, [taskList])
+
+    const check = () => {
+      taskList.map(task => {
+        if(task.id == currentTask){
+            setCheckResult(task.goals.filter(g => g.complete == false))
+         }
+        })
+      }
+
+    useEffect(() => {
+      check(taskList)
+    },[taskList])
 
   useEffect(() => {
     if (!isRunning || secondsLeft <= 0) return;
@@ -51,6 +123,15 @@ export default function Timer() {
         setSecondsLeft(s => s - 1);
       }
     }, 1000);
+
+    //Updates the task's time
+    setTaskList(taskList.map(task => (
+      task.id == currentTask ?
+      {...task, time: task.time + 1}
+      :
+      task
+    )))
+
     return () => clearTimeout(id);
   }, [isRunning, secondsLeft, phase, sessionMins, breakMins]);
 
@@ -189,8 +270,46 @@ export default function Timer() {
 
           <section className={styles.goals}>
             <header className={styles.goalsHeader}>
+              <h2 style={{ position:'relative', justifySelf:'center', bottom: 10}}>{taskList.find(task => task.id == currentTask) ? taskList.find(task => task.id == currentTask).name : null}</h2>
               <h3 className={styles.goalsTitle}>Task Goals</h3>
             </header>
+            <ul className={styles.goalList}>
+                {taskList.map((task) => (
+                  task.id == currentTask ?
+                  task.goals.map(goal => (
+                  <li key={goal.id} className={styles.goalItem}>
+                    <button
+                      type="button"
+                      value={goal.complete}
+                      className={styles.checkbox}
+                      aria-pressed={goal.done}
+                      aria-label={`Toggle ${goal.label}`}
+                      onClick={(e) => setTaskList(taskList.map(t => (
+                        t.id == currentTask ?
+                        {...t, goals: t.goals.map(g => (
+                          g.id == goal.id ?
+                          {...g,complete: !g.complete}
+                          :
+                          g
+                        ))}
+                        :
+                        t
+                  )))}
+                    >
+                      {goal.complete && (
+                        <img src={iconCheckDone} alt="" className={styles.checkboxIcon} />
+                      )}
+                    </button>
+                    <span className={`${styles.goalLabel} ${goal.done ? styles.goalLabelDone : ''}`}>
+                      {goal.name}
+                    </span>
+                  </li> ))
+                  :
+                  null
+                ))}
+              </ul>
+              {checkResult.length == 0 && currentTask ? <button onClick={() => completeTask()}>Complete</button> : null}
+           {/* 
             {goals.length > 0 && (
               <ul className={styles.goalList}>
                 {goals.map(goal => (
@@ -233,6 +352,8 @@ export default function Timer() {
                 <span>Add Goal</span>
               </button>
             )}
+              */} 
+            
           </section>
         </div>
       </div>

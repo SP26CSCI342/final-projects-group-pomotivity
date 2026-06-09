@@ -77,6 +77,14 @@ const noteSchema = new mongoose.Schema({
 
 const Note = mongoose.model("Note", noteSchema);
 
+const tasksSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+  tasks: { type: Array, required: true},
+  projects: {type: Array, required: true},
+  completedTasks: {type: Array, required: true}
+});
+
+const Task = mongoose.model("Task", tasksSchema);
 
 function authenticate(req, res, next) {
   const auth = req.headers.authorization || "";
@@ -412,6 +420,61 @@ app.patch("/api/note", authenticate, async (req, res) => {
     console.error("Error updating notes:", error);
     return res.status(500).json({ error: "Server error." });
   }
+});
+
+// ============================================================
+// GET /api/task
+// return the task collection
+// ============================================================
+app.get("/api/task", authenticate, async (req, res) => {
+  try {
+    const foundTask = await Task.findOne({ user: req.userId });
+    return res.status(200).json({ foundTask });
+  } catch (error) {
+    console.error("Get events error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// POST /api/task
+// add a new task/project colllection (only runs once for every user)
+// ============================================================
+app.post("/api/task", authenticate, async (req, res) => {
+  const { collection } = req.body || {};
+
+  try {
+    let foundTask = await Task.findOne({ user: req.userId });
+    if(!foundTask){
+      foundTask = await Task.create({
+        user: req.userId,
+        tasks: [],
+      });
+    }
+    return res.status(201).json({ foundTask });
+  } catch (error) {
+    console.error("Create files error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+// ============================================================
+// PATCH /api/task
+// updates tasks in databasewhen changed
+// ============================================================
+app.patch("/api/task", authenticate, async (req, res) => {
+  const tasks = req.body || {};
+  try {
+  const newTasks = await Task.findOneAndUpdate(
+    {user: req.userId},
+    {$set: {tasks: tasks}},
+    {returnDocument: 'after'});
+  return res.status(201).json({ newTasks });
+  } catch (error) {
+    console.error("Error updating notes:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+
 });
 
 // ============================================================

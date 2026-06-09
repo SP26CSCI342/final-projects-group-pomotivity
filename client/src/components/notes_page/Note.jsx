@@ -19,11 +19,11 @@ function timeAgo(timestamp) {
   }
   //1-59 minutes
   else if(timeDiff >= 60 && timeDiff < 3600){
-    return `${Math.floor(timeDiff/60)} minute${Math.floor(timeDiff/60) < 2 ? '' : 's'} ago`
+    return `${Math.floor(timeDiff/60)}min ago`
   }
   //1-23 hours
   else if(timeDiff >= 3600 && timeDiff < 86400){
-    return `${Math.floor(timeDiff/3600)} hour${Math.floor(timeDiff/3600) < 2 ? '' : 's'} ago`
+    return `${Math.floor(timeDiff/3600)}hr ${Math.floor((timeDiff % 3600)/60)}min ago`
   }
   //Days
   else if(timeDiff >= 86400){

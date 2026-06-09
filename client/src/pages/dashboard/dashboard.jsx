@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import iconNote from '../../assets/icon-note.svg';
 import iconPlay from '../../assets/icon-play.svg';
 import iconChevronLeft from '../../assets/icon-chevron-left.svg';
@@ -98,12 +98,29 @@ const tasks = [
   { name: 'Task 4', percent: 10 },
 ];
 
+function TaskProgress({t}){
+  return(
+  <li key={t.name} className={styles.taskRow}>
+                <div className={styles.taskHead}>
+                  <span className={styles.taskName}>{t.name}</span>
+                  <span className={styles.taskPercent}>{t.goals.filter(g => g.complete).length/t.goals.length * 100}%</span>
+                </div>
+                <div className={styles.progressTrack}>
+                  <div className={styles.progressFill} style={{ width: `${t.goals.filter(g => g.complete).length/t.goals.length * 100}%` }} />
+                </div>
+              </li>
+  )
+}
+
 export default function Dashboard() {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(today));
   const [selectedDate, setSelectedDate] = useState(today);
   const eventsByDate = useMemo(() => createEventMap(currentMonth), [currentMonth]);
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
+
+  const [taskList, setTaskList] = useState([])
+  
 
   const handleChangeMonth = (offset) => {
     const nextMonth = addMonths(currentMonth, offset);
@@ -123,6 +140,27 @@ export default function Dashboard() {
     }
     setSelectedDate(date);
   };
+
+  //Initializes the task list
+   useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      fetch('/api/task', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.foundTask.tasks)) {
+            setTaskList(data.foundTask.tasks);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading tasks:', error);
+        }
+      )}, []);
 
   return (
     <div className={styles.dashboard}>
@@ -237,17 +275,19 @@ export default function Dashboard() {
             <h4 className={styles.sectionTitle}>Tasks Progress</h4>
           </div>
           <ul className={styles.taskList}>
-            {tasks.map((t) => (
-              <li key={t.name} className={styles.taskRow}>
-                <div className={styles.taskHead}>
-                  <span className={styles.taskName}>{t.name}</span>
-                  <span className={styles.taskPercent}>{t.percent}%</span>
-                </div>
-                <div className={styles.progressTrack}>
-                  <div className={styles.progressFill} style={{ width: `${t.percent}%` }} />
-                </div>
-              </li>
-            ))}
+            {taskList.length > 0 ? taskList.map((t) => (
+              t.type == 2 ?
+              t.tasks.map(task => (
+                <span>
+                <TaskProgress t={task}/>
+                <a style={{fontSize:12}}>from {t.name}</a>
+                </span>
+              ))
+              
+              :
+              <TaskProgress t={t}/>
+            ))
+          : null}
           </ul>
         </section>
       </aside>
