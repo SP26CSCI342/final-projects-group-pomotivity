@@ -34,7 +34,8 @@ npm run dev
 ```
 6. The two npm run dev commands should be in two separate terminals.
 
-Live Deployed URL:
+Live Deployed URL: https://final-projects-group-pomotivity.vercel.app/
+Render URL: https://final-projects-group-pomotivity.onrender.com
 
 Github URL: https://github.com/SP26CSCI342/final-projects-group-pomotivity
 

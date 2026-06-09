@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './settings.module.css';
+import iconDelete from '../../assets/nav-trash.svg';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -147,9 +148,7 @@ export default function Settings() {
               onClick={handleDeleteAccount}
               aria-label="Delete account"
             >
-              <svg className={styles.deleteIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8 3a4 4 0 0 1 4 4v1M1 9h6M3 9l1 12h4l1-12" />
-              </svg>
+              <img src={iconDelete} alt="" className={styles.userTrashIcon} />
             </button>
           </div>
         </div>

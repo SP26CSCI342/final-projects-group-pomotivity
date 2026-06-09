@@ -321,6 +321,10 @@
   transition: filter 0.15s;
 }
 
+.userTrashIcon {
+  width: 50%;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .settingsContainer {
