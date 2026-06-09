@@ -14,7 +14,14 @@ const app = express();
 // defaults to 3000
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://final-projects-group-pomotivity.vercel.app/",
+    /\.vercel\.app$/,
+  ],
+  credentials: true,
+}));
 app.use(express.json()); // parse JSON bodies
 // parse URL-encoded bodies (e.g., form submissions)
 app.use(express.urlencoded({ extended: true }));
@@ -577,6 +584,17 @@ app.patch("/api/profile/preferences", async (req, res) => {
     console.error("Preferences update error:", error);
     return res.status(500).json({ error: "Server error." });
   }
+});
+
+// ============================================================
+// GET /api/health
+// ============================================================
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    time: new Date().toISOString(),
+    mongo: mongoose.connection.readyState === 1,
+  });
 });
 
 // 404 fallback — must come AFTER every route or it'll eat them.

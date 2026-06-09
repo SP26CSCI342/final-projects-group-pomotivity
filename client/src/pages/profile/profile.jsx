@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import avatar from '../../assets/profile-avatar.png';
+import avatar from '../../assets/profile-avatar.svg';
 import iconEnvelope from '../../assets/icon-envelope.svg';
 import iconEdit from '../../assets/icon-edit.svg';
 import iconClockStat from '../../assets/icon-clock-stat.svg';
