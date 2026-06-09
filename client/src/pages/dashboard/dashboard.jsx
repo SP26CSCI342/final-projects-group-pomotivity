@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import iconNote from '../../assets/icon-note.svg';
 import iconPlay from '../../assets/icon-play.svg';
 import iconChevronLeft from '../../assets/icon-chevron-left.svg';
@@ -118,6 +119,7 @@ export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(today);
   const eventsByDate = useMemo(() => createEventMap(currentMonth), [currentMonth]);
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
+  const navigate = useNavigate();
 
   const [taskList, setTaskList] = useState([])
   
@@ -194,7 +196,7 @@ export default function Dashboard() {
         </article>
 
         <div className={styles.focusButtonWrap}>
-          <button type="button" className={styles.focusButton}>
+          <button type="button" className={styles.focusButton} onClick={() => navigate("/timer")}>
             <img src={iconPlay} alt="" className={styles.focusButtonIcon} />
             <span>Start Focus</span>
           </button>
