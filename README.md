@@ -39,6 +39,8 @@ Render URL: https://final-projects-group-pomotivity.onrender.com
 
 Github URL: https://github.com/SP26CSCI342/final-projects-group-pomotivity
 
+Team Demo URL: https://www.youtube.com/watch?v=HcpL0ZBmfvI
+
 Tech Stack List:
 MongoDB
 
