@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './settings.module.css';
 
 export default function Settings() {
+  const navigate = useNavigate();
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
   const [formData, setFormData] = useState({
     use24hTime: true,
     dateFormat: 'MM/DD/YYYY',
@@ -47,9 +50,41 @@ export default function Settings() {
     // Implement navigation or external link opening
   };
 
-  const handleDeleteAccount = () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      console.log('Deleting account...');
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
+    if (!confirmed) return;
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      window.alert('You are not logged in.');
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/api/delete-account`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to delete your account right now.');
+      }
+
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('User');
+
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Delete account error:', error);
+      window.alert(error.message || 'Unable to delete your account right now.');
     }
   };
 

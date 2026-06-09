@@ -7,11 +7,10 @@ const mongoose = require("mongoose");
 const bcrypt   = require("bcryptjs");
 const jwt      = require("jsonwebtoken");
 
-// Initialize app
+// ============================================================
+// App setup
+// ============================================================
 const app = express();
-
-// gets port from .env
-// defaults to 3000
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
@@ -26,11 +25,13 @@ app.use(express.json()); // parse JSON bodies
 // parse URL-encoded bodies (e.g., form submissions)
 app.use(express.urlencoded({ extended: true }));
 
-// Connect Mongoose to MongoDB Atlas.
+// Connect Mongoose to MongoDB Atlas when the server is started directly.
 // Uses `process.env.MONGO_URI` from your .env file.
-mongoose.connect(process.env.MONGO_URI, {})
-  .then(() => console.log("MongoDB connected."))
-  .catch((err) => console.error("MongoDB connection error:", err));
+if (require.main === module) {
+  mongoose.connect(process.env.MONGO_URI, {})
+    .then(() => console.log("MongoDB connected."))
+    .catch((err) => console.error("MongoDB connection error:", err));
+}
 
 const profileSchema = new mongoose.Schema({
   firstName: { type: String, required: true, trim: true, minlength: 3 },
@@ -93,6 +94,40 @@ const tasksSchema = new mongoose.Schema({
 
 const Task = mongoose.model("Task", tasksSchema);
 
+const models = {
+  Profile,
+  User,
+  Event,
+  Files,
+  Note,
+  Task,
+};
+
+// ============================================================
+// Helper functions
+// ============================================================
+async function deleteUserAccount(models, userId) {
+  const { User, Profile, Event, Files, Note, Task: TaskModel } = models;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return false;
+  }
+
+  const profileId = user.profile;
+
+  await Promise.all([
+    Event.deleteMany({ user: userId }),
+    Files.deleteMany({ user: userId }),
+    Note.deleteMany({ user: userId }),
+    TaskModel.deleteMany({ user: userId }),
+    profileId ? Profile.deleteOne({ _id: profileId }) : null,
+    User.deleteOne({ _id: userId }),
+  ]);
+
+  return true;
+}
+
 function authenticate(req, res, next) {
   const auth = req.headers.authorization || "";
   if (!auth.startsWith("Bearer ")) {
@@ -109,30 +144,34 @@ function authenticate(req, res, next) {
   }
 }
 
-function validateInputs({ firstName, lastName, email, password}){
-    if(!firstName || firstName.length < 3){
-        return new Error("first name must be at least 3 characters long");
-    }
+function validateInputs({ firstName, lastName, email, password }) {
+  if (!firstName || firstName.length < 3) {
+    return new Error("First name must be at least 3 characters long.");
+  }
 
-    if(!lastName || lastName.length < 3){
-        return new Error("Username must be at least 3 characters long");
-    }
+  if (!lastName || lastName.length < 3) {
+    return new Error("Last name must be at least 3 characters long.");
+  }
 
-    if (email !== undefined) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email)) {
-        return new Error("Please enter a valid email address.");
-      }
+  if (email !== undefined) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      return new Error("Please enter a valid email address.");
     }
-    if(!password || password.length < 8){
-        return new Error("Password must be at least 8 characters long")
-    }
+  }
+
+  if (!password || password.length < 8) {
+    return new Error("Password must be at least 8 characters long.");
+  }
+
   return "";
 }
 
 // ============================================================
-// POST /api/register
+// Auth routes
 // ============================================================
+
+// POST /api/register
 app.post("/api/register", async(req, res) => {
   const {firstName, lastName, email, password } = req.body || {};
 
@@ -178,9 +217,7 @@ app.post("/api/register", async(req, res) => {
   }
 });
 
-// ============================================================
 // POST /api/login
-// ============================================================
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body || {};
 
@@ -484,9 +521,7 @@ app.patch("/api/task", authenticate, async (req, res) => {
 
 });
 
-// ============================================================
 // POST /api/logout
-// ============================================================
 app.post("/api/logout", (req, res) => {
     
     req.headers.authorization = req.headers.authorization || "";
@@ -503,6 +538,25 @@ app.post("/api/logout", (req, res) => {
 
   return res.status(200).json({ message: "Logged out." });
 });
+
+// DELETE /api/delete-account and /api/account
+async function deleteAccountHandler(req, res) {
+  try {
+    const deleted = await deleteUserAccount(models, req.userId);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    return res.status(200).json({ message: "Account deleted successfully." });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    return res.status(500).json({ error: "Server error." });
+  }
+}
+
+app.delete("/api/delete-account", authenticate, deleteAccountHandler);
+app.delete("/api/account", authenticate, deleteAccountHandler);
 
 // ============================================================
 // PATCH /api/profile
@@ -602,6 +656,13 @@ app.use((req, res) => {
   return res.status(404).json({ error: "Route not found." });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = {
+  app,
+  deleteUserAccount,
+};
