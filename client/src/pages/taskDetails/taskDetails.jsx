@@ -18,6 +18,8 @@ export default function TaskDetails() {
   const [projectTasks, setProjectTasks] = useState([])  
   const [loaded, setLoaded] = useState(false)
 
+  const [percentSum, setPercentSum] = useState(0)
+
   //Initializes the task list. Creates it if the user doesn't have an entry in the database
    useEffect(() => {
       const token = localStorage.getItem('token');
@@ -59,35 +61,25 @@ export default function TaskDetails() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
         body: JSON.stringify(taskList)
-      }).then(
-        fetch(`${baseUrl}/api/task`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data.foundTask.tasks)) {
-            setTaskList(data.foundTask.tasks);
-            setLoaded(true);
-          }
-        })
-        .catch((error) => {
-          console.error('Error loading tasks:', error);
-        })
-      )
+      });
+      
     }
   }, [taskList])
 
 
+  const handlePercentSum = (task) => {
+    task.tasks.map(t => {
+      setPercentSum(percentSum + t.goals.filter(g => g.complete).length/t.goals.length)
+    })
+    return Math.rount(percentSum/5)
+  }
 
   const createTask = (id) => {
-    setTaskList([...taskList, {id: id, name: newTaskName, goals: taskGoals, progress: 0, time: 0, type: 1, completed: false}])
+    setTaskList([...taskList, {id: id, name: newTaskName, goals: taskGoals, time: 0, type: 1, completed: false}])
   };
 
   const createProject = (id) => {
-    setTaskList([...taskList, {id: id, name: newTaskName, tasks: projectTasks, progress: 0, time: 0, type: 2, completed: false}])
+    setTaskList([...taskList, {id: id, name: newTaskName, tasks: projectTasks, time: 0, type: 2, completed: false}])
   };
 
   const removeTask = (id) => {
@@ -105,28 +97,6 @@ export default function TaskDetails() {
     }
   }
 
-  // Sample task data matching the Figma design
-  const smallTasks = [
-    {
-      id: 1,
-      title: 'Task 1',
-      progress: 80,
-      timeSpent: 'Time Spent: 12h4m',
-    },
-    {
-      id: 2,
-      title: 'Task 1 3/4/26',
-      progress: 80,
-      timeSpent: 'Time Spent: 12h4m',
-    },
-    {
-      id: 3,
-      title: 'Task 2 7/3/26',
-      progress: 80,
-      timeSpent: 'Time Spent: 12h4m',
-    },
-  ];
-
 
 
   return (
@@ -143,7 +113,7 @@ export default function TaskDetails() {
         {!isAddingTask && (
           <>
             <button onClick={() => {setIsAddingTask(true); setTaskGoals([{id: crypto.randomUUID(), name: '', completed: false}])}}>New Task</button>
-            <button onClick={() => {setIsAddingProject(true); setProjectTasks([{id: crypto.randomUUID(), name: '', progress: 0, goals: [{id: crypto.randomUUID(), name: '', completed: false}]},{id: crypto.randomUUID(), name: '', progress: 0, goals: [{id: crypto.randomUUID(), name: '', completed: false}]}])}}>New Project</button>
+            <button onClick={() => {setIsAddingProject(true); setProjectTasks([{id: crypto.randomUUID(), name: '', goals: [{id: crypto.randomUUID(), name: '', completed: false}]},{id: crypto.randomUUID(), name: '', goals: [{id: crypto.randomUUID(), name: '', completed: false}]}])}}>New Project</button>
           </>
         )}
       </div>
@@ -162,7 +132,7 @@ export default function TaskDetails() {
               </div>
               <div style={{overflow: 'auto'}}>
                 {taskGoals.map((goal, i) => (
-                  <p key={i}><input required={true} placeholder='goal...' value={goal.name} onChange={(e) => setTaskGoals(taskGoals.map(g => (
+                  <p key={goal.id}><input required={true} placeholder='goal...' value={goal.name} onChange={(e) => setTaskGoals(taskGoals.map(g => (
                     goal.id == g.id ?
                     {...g,name: e.target.value}
                     :
@@ -182,7 +152,7 @@ export default function TaskDetails() {
               <Task
                 id={task.id}
                 name={task.name}
-                progress={Math.round(task.goals.filter(g => g.complete).length/task.goals.length * 100)}
+                progress={Math.round(task.goals.filter(g => g.completed).length/task.goals.length * 100)}
                 timeSpent={task.time}
               />
             </div>
@@ -191,7 +161,8 @@ export default function TaskDetails() {
               <Project
                 id={task.id}
                 name={task.name}
-                progress={task.progress}
+                progress={() => handlePercentSum(task)}
+                taskProgress={task.tasks.map(t => (t))}
                 timeSpent={task.time}
                 tasks={task.tasks}
               />

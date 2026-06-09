@@ -547,8 +547,14 @@
   box-shadow: 0px 10px 0px 0px #00390f;
 }
 
-div h3:hover {
+.hoverable {
+  transition: all 0.25s;
+  border-radius: 5px;
+}
+
+.hoverable:hover {
   cursor: pointer;
+  background-color: darkgreen;
 }
 
 .largeCard {

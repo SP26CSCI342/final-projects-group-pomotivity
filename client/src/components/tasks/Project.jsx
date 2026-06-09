@@ -21,10 +21,57 @@ function parseTime(time) {
 }
 
 export default function Project({ id, name, progress, timeSpent, tasks }) {
+  
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  
   const progressPercentage = progress || 0;
 
   const navigate = useNavigate()
   const time = parseTime(timeSpent)
+  const [newName, setNewName] = useState(name)
+  const [taskGoals, setTaskGoals] = useState([])
+  const [taskList, setTaskList] = useState([])
+
+  
+
+  const [loaded, setLoaded] = useState(false)
+   //Initializes the list of tasks
+   useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+
+      fetch(`${baseUrl}/api/task`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.foundTask.tasks)) {
+            setTaskList(data.foundTask.tasks);
+            
+            setLoaded(true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading tasks:', error);
+        });
+    }, []);
+
+
+  const totalPercentage = () => {
+    let sum = 0
+    tasks.map(t => {
+      sum += (t.goals.filter(g => g.completed).length/t.goals.length * 100)
+    })
+    return sum/tasks.length
+  }
+
+  const taskPercentage = (task) => {
+    return (task.goals.filter(g => g.completed).length/task.goals.length * 100)
+  }
 
   return (
     <div className={styles.largeCard}>
@@ -36,15 +83,15 @@ export default function Project({ id, name, progress, timeSpent, tasks }) {
       </div>
 
       <div className={styles.statsRow}>
-        <span className={styles.statLabel}>Tasks done {tasks.filter(task => task.progress == 100).length}</span>
+        <span className={styles.statLabel}>Tasks done {tasks.filter(task => task.completed).length}</span>
         <div className={styles.progressSection}>
           <div className={styles.progressBar}>
             <div
               className={styles.progressFill}
-              style={{ width: `${progressPercentage}%` }}
+              style={{ width: `${totalPercentage}%` }}
             />
           </div>
-          <span className={styles.percentage}>{progressPercentage}%</span>
+          <span className={styles.percentage}>{Math.round(totalPercentage())}%</span>
         </div>
       </div>
 
@@ -52,18 +99,18 @@ export default function Project({ id, name, progress, timeSpent, tasks }) {
         <h4 className={styles.tasksHeading}>Tasks</h4>
         {tasks.map((task, idx) => (
           <div key={idx} className={styles.taskItem}>
-            <span onClick={() => navigate("/timer", {state: {currentTask: task.id, projectId: id}})} className={styles.taskName}>{task.name}</span>
+            <span onClick={() => navigate("/timer", {state: {currentTask: task.id, projectId: id}})} className={styles.taskName, styles.hoverable}>{task.name}</span>
             <div className={styles.taskProgressBar}>
               <div
                 className={styles.taskProgressFill}
-                style={{ width: `${task.progress}%` }}
+                style={{ width: `${Math.round(taskPercentage(task))}%` }}
               />
             </div>
           </div>
         ))}
       </div>
 
-      <p className={styles.timeSpentLarge}>{timeSpent || 'Time Spent: 0h0m'}</p>
+      <p className={styles.timeSpentLarge}>{`Time Spent: ${time}`}</p>
     </div>
   );
 }

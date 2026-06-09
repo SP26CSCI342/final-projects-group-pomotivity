@@ -59,6 +59,17 @@ export default function Task({ id, name, progress, timeSpent}) {
   const [taskList, setTaskList] = useState([])
 
   
+  const removeSelf = () => {
+    const newList = taskList.filter(task => task.id != id)
+    const token = localStorage.getItem('token');
+    if (!token) return;
+      fetch(`${baseUrl}/api/task`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
+        body: JSON.stringify(newList)
+    });
+    setIsEditing(false)
+  }
 
   const confirm = () => {
       const newList = taskList.map(task => (
@@ -93,9 +104,7 @@ export default function Task({ id, name, progress, timeSpent}) {
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data.foundTask.tasks)) {
-            setTaskList(data.foundTask.tasks);
-            setTaskGoals(data.foundTask.tasks.find(task => task.id == id).goals)
-            
+            setTaskList(data.foundTask.tasks);            
             setLoaded(true);
           }
         })
@@ -109,18 +118,19 @@ export default function Task({ id, name, progress, timeSpent}) {
       {isEditing ? (
         <form onSubmit={(e) => {e.preventDefault(); confirm()} }>
           <div className={styles.header}>
-            <h3 className={styles.title}><input value={newName} onChange={(e) => setNewName(e.target.value)}/></h3>
-            <button onClick={() => setIsEditing(false)} className={styles.iconBtn} type="button">
-              <h2>X</h2>
-            </button>
+            <h3 key={crypto.randomUUID()} className={styles.title}><input value={newName} onChange={(e) => setNewName(e.target.value)}/></h3>
+            <button type='button' onClick={() => setIsEditing(false)}>Cancel</button>
             <button type="submit">Submit</button>
+            <button type='button' onClick={() => setIsEditing(false)} className={styles.iconBtn} type="button">
+              <h2 style={{color:'#a10724'}}>X</h2>
+            </button>
           </div>
           {taskList.map(task => {
               if(task.id == id){
                 return (
-                <div style={{overflow: 'auto'}}>
+                <div key={task.id} style={{overflow: 'auto'}}>
                 {taskGoals.map((goal, i) => (
-                  <p key={i}><input required={true} placeholder='goal...' value={goal.name} onChange={(e) => setTaskGoals(taskGoals.map(g => (
+                  <p key={goal.id}><input required={true} placeholder='goal...' value={goal.name} onChange={(e) => setTaskGoals(taskGoals.map(g => (
                     goal.id == g.id ?
                     {...g,name: e.target.value}
                     :
@@ -136,7 +146,7 @@ export default function Task({ id, name, progress, timeSpent}) {
       ) : (
         <div>
           <div className={styles.header}>
-            <h3 onClick={() => navigate("/timer", {state: {currentTask: id, projectId: null}})} className={styles.title}>{name}</h3>
+            <h3 onClick={() => navigate("/timer", {state: {currentTask: id, projectId: null}})} className={styles.title, styles.hoverable}>{name}</h3>
             <button onClick={() => setIsEditing(true)} className={styles.iconBtn} type="button">
               <img src={editIcon} alt="Edit" />
             </button>

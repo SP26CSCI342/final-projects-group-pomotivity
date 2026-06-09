@@ -68,3 +68,6 @@ Leyton:
 
 Jade:
   Working on the backend and the database for this project taught me a lot about using API and utilizing hooks in my react project and it helped me understand how data flows from the front end and the backend. This was my first project using MongoDB and I learned a lot about using a non-relational database and the structure took some getting used to. As for the structure of the project, I learned that it was difficult for the team to clearly claim responsibilities and ownership of tasks without strong leadership.
+  
+ Quincy:
+    Doing component-heavy work made me realize that React is way more complex than I gave it credit for. I found myself having to think a lot about how my components interact, especially with the file tree, where there were multiple layers. I also got to work a bit with the database as well and it was a huge challenge trying to hook both ends up. My own contributions involved getting a lot of the parts moving, like the file system and task manager, along with its interactions with the timer.

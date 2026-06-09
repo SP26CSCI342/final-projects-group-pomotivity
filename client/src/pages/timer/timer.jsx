@@ -27,7 +27,7 @@ function arcPath(progress) {
 }
 
 export default function Timer() {
-  
+
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
   const { state } = useLocation()
@@ -51,15 +51,17 @@ export default function Timer() {
   const [checkResult, setCheckResult] = useState([null])
   const navigate = useNavigate()
   
+  const [currentList, setCurrentList] = useState(taskList)
 
 
   const completeTask = () => {
-    setTaskList(taskList.map(task => (
+    setCurrentList(currentList.map(task => (
       currentTask == task.id ?
       {...task, completed: true}
       :
       task
     )))
+    
     toast.success("You completed a task!")
     navigate("/task/1")
   }
@@ -80,6 +82,12 @@ export default function Timer() {
           if (Array.isArray(data.foundTask.tasks)) {
             setTaskList(data.foundTask.tasks);
             setLoaded(true);
+            if(projectId){
+              setCurrentList(data.foundTask.tasks.find(project => project.id == projectId).tasks)
+            }
+            else{
+              setCurrentList(data.foundTask.tasks)
+            }
           }
         })
         .catch((error) => {
@@ -102,16 +110,28 @@ export default function Timer() {
     }, [taskList])
 
     const check = () => {
-      taskList.map(task => {
+      currentList.map(task => {
         if(task.id == currentTask){
-            setCheckResult(task.goals.filter(g => g.complete == false))
+            setCheckResult(task.goals.filter(g => g.completed == false))
          }
         })
       }
 
     useEffect(() => {
-      check(taskList)
-    },[taskList])
+      check(currentList)
+      if(projectId){
+        setTaskList(taskList.map(task => (
+        task.id == projectId ?
+        {...task, tasks:currentList}
+        :
+        task
+      )))
+      }
+      else{
+        setTaskList(currentList)
+        }
+      
+    },[currentList])
 
   useEffect(() => {
     if (!isRunning || secondsLeft <= 0) return;
@@ -129,7 +149,7 @@ export default function Timer() {
     }, 1000);
 
     //Updates the task's time
-    setTaskList(taskList.map(task => (
+    setCurrentList(currentList.map(task => (
       task.id == currentTask ?
       {...task, time: task.time + 1}
       :
@@ -274,25 +294,25 @@ export default function Timer() {
 
           <section className={styles.goals}>
             <header className={styles.goalsHeader}>
-              <h2 style={{ position:'relative', justifySelf:'center', bottom: 10}}>{taskList.find(task => task.id == currentTask) ? taskList.find(task => task.id == currentTask).name : null}</h2>
+              <h2 style={{ position:'relative', justifySelf:'center', bottom: 10}}>{currentList.find(task => task.id == currentTask) ? currentList.find(task => task.id == currentTask).name : null}</h2>
               <h3 className={styles.goalsTitle}>Task Goals</h3>
             </header>
             <ul className={styles.goalList}>
-                {taskList.map((task) => (
+                {currentList.map((task) => (
                   task.id == currentTask ?
                   task.goals.map(goal => (
                   <li key={goal.id} className={styles.goalItem}>
                     <button
                       type="button"
-                      value={goal.complete}
+                      value={goal.completed}
                       className={styles.checkbox}
                       aria-pressed={goal.done}
                       aria-label={`Toggle ${goal.label}`}
-                      onClick={(e) => setTaskList(taskList.map(t => (
+                      onClick={(e) => setCurrentList(currentList.map(t => (
                         t.id == currentTask ?
                         {...t, goals: t.goals.map(g => (
                           g.id == goal.id ?
-                          {...g,complete: !g.complete}
+                          {...g,completed: !g.completed}
                           :
                           g
                         ))}
@@ -300,7 +320,7 @@ export default function Timer() {
                         t
                   )))}
                     >
-                      {goal.complete && (
+                      {goal.completed && (
                         <img src={iconCheckDone} alt="" className={styles.checkboxIcon} />
                       )}
                     </button>
