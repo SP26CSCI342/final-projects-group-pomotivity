@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import styles from './settings.module.css';
 import iconDelete from '../../assets/nav-trash.svg';
 
@@ -24,39 +25,12 @@ export default function Settings() {
 
   const userEmail = user.email || 'No email provided';
 
-  const handleToggle = (field) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleSelectChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      console.log('Photo uploaded:', file.name);
-    }
-  };
-
-  const handleLinkClick = (link) => {
-    console.log('Opening:', link);
-    // Implement navigation or external link opening
   };
 
   const handleDeleteAccount = async () => {
@@ -97,8 +71,8 @@ export default function Settings() {
     }
   };
 
-  const handleSecretsClick = () => {
-    console.log('Opening secrets/API keys...');
+  const handleUpdate = () => {
+    toast.error("This functionality is not yet implemented.")
   };
 
   return (
@@ -140,7 +114,7 @@ export default function Settings() {
           </div>
 
           <div className={styles.submitMargin}>
-            <button type="submit" className={styles.submit}>Save</button>
+            <button type="submit" className={styles.submit} onClick={handleUpdate}>Save</button>
           </div>
 
         </div>
