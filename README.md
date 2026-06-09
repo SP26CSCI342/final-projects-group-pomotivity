@@ -60,6 +60,7 @@ Isaac S:
 Quincy:
 
 Isaac R:
+  Over the course of this project I didn't achieve as much as I hoped I would. I wrote one and a half things; I made the Start Focus button on the dashboard navigate to the timer page and wrote part of a login test. The reason I didn't get much done is because, while I was in group sessions from the beginning, I didn't start coding early enough. I was made in charge of writing tests, but I wasn't sure how to write them. I didn't ask for help when I should've, instead I kicked my problems down the road expecting my future self to handle them. For projects like this moving forward, I plan to get my questions answered right away rather than accruing them until its too late.
 
 Leyton:
 
