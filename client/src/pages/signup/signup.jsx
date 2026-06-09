@@ -40,6 +40,8 @@ export default function SignUp() {
   }
 
   const handleSubmit = async (event) => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
     event.preventDefault();
     setError("");
 
@@ -51,7 +53,7 @@ export default function SignUp() {
     }
 
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch(`${base_url}/api/register`, {
         method: "POST",
         headers: {"Content-Type": "application/json" },
         body: JSON.stringify({firstName, lastName, email, password}),
