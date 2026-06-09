@@ -37,6 +37,8 @@ function Toggle({ on, onToggle, ariaLabel }) {
 }
 
 export default function Profile() {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const [user, setUser] = useState({ profiles: {} });
   const [loadingPref, setLoadingPref] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -132,7 +134,7 @@ export default function Profile() {
     setUser(updated);
     try {
       setLoadingPref(true);
-      const res = await fetch('/api/profile/preferences', {
+      const res = await fetch(`${baseUrl}/api/profile/preferences`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +206,7 @@ export default function Profile() {
 
     try {
       setLoadingPref(true);
-      const res = await fetch('/api/profile', {
+      const res = await fetch(`${baseUrl}/api/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

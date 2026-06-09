@@ -60,7 +60,7 @@ export default function TaskDetails() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
         body: JSON.stringify(taskList)
       }).then(
-        fetch('/api/task', {
+        fetch(`${baseUrl}/api/task`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
