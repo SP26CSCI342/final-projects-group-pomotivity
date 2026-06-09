@@ -23,6 +23,8 @@ const formatDateKey = (year, month, day) =>
 const todayIso = formatDateKey(currentYear, currentMonth, currentDay);
 
 export default function Calendar() {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [newTitle, setNewTitle] = useState('');
@@ -49,7 +51,7 @@ export default function Calendar() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    fetch('/api/events', {
+    fetch(`${baseUrl}/api/events`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -121,7 +123,7 @@ export default function Calendar() {
     }
 
     try {
-      const response = await fetch('/api/events', {
+      const response = await fetch(`${baseUrl}/api/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +159,7 @@ export default function Calendar() {
     }
 
     try {
-      const response = await fetch(`/api/events/${eventId}`, {
+      const response = await fetch(`${baseUrl}/api/events/${eventId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -203,7 +205,7 @@ export default function Calendar() {
     }
 
     try {
-      const response = await fetch(`/api/events/${eventId}`, {
+      const response = await fetch(`${baseUrl}/api/events/${eventId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

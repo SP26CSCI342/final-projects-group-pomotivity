@@ -49,6 +49,7 @@ export default function Note({title, cardTitle, body, timestamp, onChange, id, p
       timeAgo(timestamp)
       return () => clearInterval(interval)
     }, [])
+    
 
 
     return (

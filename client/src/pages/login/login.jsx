@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import toast from "react-hot-toast";
 
 function Login() {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,7 +34,7 @@ function Login() {
     }
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch(`${baseUrl}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

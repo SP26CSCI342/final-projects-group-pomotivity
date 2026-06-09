@@ -9,6 +9,8 @@ import iconConfirm from '../../assets/icon-confirm.svg';
 import styles from './signup.module.css';
 
 export default function SignUp() {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");

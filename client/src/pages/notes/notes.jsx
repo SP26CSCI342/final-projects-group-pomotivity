@@ -44,6 +44,8 @@ function addToTree(id, tree, file){
 }
 
 export default function Notes() {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
 
   const [fileTree, setFileTree] = useState([])
   const [notes, setNotes] = useState([])
@@ -54,12 +56,12 @@ export default function Notes() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      fetch('/api/files', {
+      fetch(`${baseUrl}/api/files`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`}
       })
       .then(() =>
-      fetch('/api/files', {
+      fetch(`${baseUrl}/api/files`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,7 +86,7 @@ export default function Notes() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      fetch('/api/files', {
+      fetch(`${baseUrl}/api/files`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
         body: JSON.stringify(fileTree)
@@ -100,12 +102,12 @@ export default function Notes() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      fetch('/api/note', {
+      fetch(`${baseUrl}/api/note`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`}
       })
       .then(() =>
-      fetch('/api/note', {
+      fetch(`${baseUrl}/api/note`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -132,7 +134,7 @@ export default function Notes() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      fetch('/api/note', {
+      fetch(`${baseUrl}/api/note`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
         body: JSON.stringify(notes)

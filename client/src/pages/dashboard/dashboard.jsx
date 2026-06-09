@@ -103,10 +103,10 @@ function TaskProgress({t}){
   <li key={t.name} className={styles.taskRow}>
                 <div className={styles.taskHead}>
                   <span className={styles.taskName}>{t.name}</span>
-                  <span className={styles.taskPercent}>{t.goals.filter(g => g.complete).length/t.goals.length * 100}%</span>
+                  <span className={styles.taskPercent}>{Math.round(t.goals.filter(g => g.complete).length/t.goals.length * 100)}%</span>
                 </div>
                 <div className={styles.progressTrack}>
-                  <div className={styles.progressFill} style={{ width: `${t.goals.filter(g => g.complete).length/t.goals.length * 100}%` }} />
+                  <div className={styles.progressFill} style={{ width: `${Math.round(t.goals.filter(g => g.complete).length/t.goals.length * 100)}%` }} />
                 </div>
               </li>
   )
@@ -145,7 +145,9 @@ export default function Dashboard() {
    useEffect(() => {
       const token = localStorage.getItem('token');
       if (!token) return;
-      fetch('/api/task', {
+        
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+     fetch(`${baseUrl}/api/task`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

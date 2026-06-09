@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 
 export default function TaskDetails() {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
   const [taskList, setTaskList] = useState([])
   const [isAddingTask, setIsAddingTask] = useState(false)
@@ -22,12 +23,12 @@ export default function TaskDetails() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      fetch('/api/task', {
+      fetch(`${baseUrl}/api/task`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`}
       })
       .then(() =>
-      fetch('/api/task', {
+      fetch(`${baseUrl}/api/task`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -54,11 +55,28 @@ export default function TaskDetails() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      fetch('/api/task', {
+      fetch(`${baseUrl}/api/task`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
         body: JSON.stringify(taskList)
-      });
+      }).then(
+        fetch('/api/task', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data.foundTask.tasks)) {
+            setTaskList(data.foundTask.tasks);
+            setLoaded(true);
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading tasks:', error);
+        })
+      )
     }
   }, [taskList])
 

@@ -44,6 +44,8 @@ function parseTime(time) {
 
 
 export default function Task({ id, name, progress, timeSpent}) {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
   const progressPercentage = progress || 0;
 
   const [goals, setGoals] = useState([])
@@ -67,7 +69,7 @@ export default function Task({ id, name, progress, timeSpent}) {
       ))
       const token = localStorage.getItem('token');
       if (!token) return;
-        fetch('/api/task', {
+        fetch(`${baseUrl}/api/task`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
           body: JSON.stringify(newList)
@@ -82,7 +84,7 @@ export default function Task({ id, name, progress, timeSpent}) {
       if (!token) return;
 
 
-      fetch('/api/task', {
+      fetch(`${baseUrl}/api/task`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

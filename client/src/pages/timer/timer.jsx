@@ -8,6 +8,7 @@ import iconCheckDone from '../../assets/icon-check-done.svg';
 import iconPlusThin from '../../assets/icon-plus-thin.svg';
 import styles from './timer.module.css';
 import { useLocation, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -26,6 +27,8 @@ function arcPath(progress) {
 }
 
 export default function Timer() {
+  
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
   const { state } = useLocation()
   const { currentTask, projectId } = state ? state : {}
@@ -57,6 +60,7 @@ export default function Timer() {
       :
       task
     )))
+    toast.success("You completed a task!")
     navigate("/task/1")
   }
   //Initializes the list of tasks
@@ -65,7 +69,7 @@ export default function Timer() {
       if (!token) return;
 
 
-      fetch('/api/task', {
+      fetch(`${baseUrl}/api/task`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -89,7 +93,7 @@ export default function Timer() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        fetch('/api/task', {
+        fetch(`${baseUrl}/api/task`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
           body: JSON.stringify(taskList)
@@ -309,7 +313,8 @@ export default function Timer() {
                 ))}
               </ul>
               {checkResult.length == 0 && currentTask ? <button onClick={() => completeTask()}>Complete</button> : null}
-           {/* 
+           {!currentTask ?
+           <>
             {goals.length > 0 && (
               <ul className={styles.goalList}>
                 {goals.map(goal => (
@@ -352,7 +357,10 @@ export default function Timer() {
                 <span>Add Goal</span>
               </button>
             )}
-              */} 
+            </>
+            :
+            null
+          } 
             
           </section>
         </div>
