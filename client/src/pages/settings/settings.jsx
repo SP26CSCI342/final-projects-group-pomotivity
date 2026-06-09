@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './settings.module.css';
 import iconDelete from '../../assets/nav-trash.svg';
@@ -6,15 +6,23 @@ import iconDelete from '../../assets/nav-trash.svg';
 export default function Settings() {
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-  const [formData, setFormData] = useState({
-    use24hTime: true,
-    dateFormat: 'MM/DD/YYYY',
-    theme: 'Light',
-    textSize: 'Medium',
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: '',
-  });
+  const [user, setUser] = useState({ profiles: {} });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user') || localStorage.getItem('User');
+
+    if(!storedUser){
+      return;
+    }
+
+    try{
+      setUser(JSON.parse(storedUser));
+    } catch (error) {
+      console.warn('Filed to parse user from localStorage', error);
+    }
+  }, []);
+
+  const userEmail = user.email || 'No email provided';
 
   const handleToggle = (field) => {
     setFormData(prev => ({
@@ -111,10 +119,10 @@ export default function Settings() {
               id="email"
               type="email"
               name="email"
-              value={formData.email}
+              value={userEmail}
               onChange={handleInputChange}
               className={styles.input}
-              placeholder="your.email@example.com"
+              placeholder={userEmail}
             />
           </div>
 
@@ -124,7 +132,7 @@ export default function Settings() {
               id="password"
               type="password"
               name="password"
-              value={formData.password}
+              value=""
               onChange={handleInputChange}
               className={styles.input}
               placeholder="••••••••"
@@ -132,7 +140,7 @@ export default function Settings() {
           </div>
 
           <div className={styles.submitMargin}>
-            <button type="submit" className={styles.submit}>Submit</button>
+            <button type="submit" className={styles.submit}>Save</button>
           </div>
 
         </div>

@@ -55,6 +55,7 @@ Greyson:
   My contributions included the initial setup and project management of this project. I learned that it is important to be organized when planning a full stack application like this because otherwise it is hard to keep up with the deadlines and you may have to get rid of certain features because of the lack of planning. It is hard to keep up communication while planning a big project such as this and make sure each part connects smoothly. Also documentation is very important to make sure everyone is on the same page.
 
 Isaac S:
+  For this project I mainly implemented the functionality for the login and signup pages, along with the protected route, but I also helped out with various other touch ups. For example, I made the default profile picture and the trash icon for the delete button. I also simplified he settings page and made it so the user doesn't have to scroll on the login page. I learned that there is more than I thought that goes into just making a simple text field work. There was already some knowledge that I knew about react from mobile app development class, but I learned more bout how to also build a backend server and connect to it from he front end.
 
 Quincy:
 
